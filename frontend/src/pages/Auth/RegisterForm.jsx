@@ -18,6 +18,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FIELD_REQUIRED_MESSAGE, EMAIL_RULE, EMAIL_RULE_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PASSWORD_CONFIRMATION_MESSAGE } from '~/utils/validators'
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
+import { registerUserAPI } from '~/apis/index'
+import { toast } from 'react-toastify'
 import AuthLayout from '~/pages/Auth/AuthLayout'
 
 function RegisterForm() {
@@ -28,7 +30,12 @@ function RegisterForm() {
 
   const submitRegister = (data) => {
     const { email, password } = data
-    // call api
+    toast.promise(
+      registerUserAPI({ email, password }),
+      { pending: 'Registering...' }
+    ).then((user) => {
+      navigate(`/login?registeredEmail=${user.email}`)
+    })
   }
 
   return (

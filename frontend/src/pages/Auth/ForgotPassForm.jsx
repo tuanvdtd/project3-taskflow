@@ -14,6 +14,7 @@ import { FIELD_REQUIRED_MESSAGE, EMAIL_RULE, EMAIL_RULE_MESSAGE } from '~/utils/
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { toast } from 'react-toastify'
 import AuthLayout from '~/pages/Auth/AuthLayout'
+import { forgotPassAPI } from '~/apis'
 
 function ForgotPassForm() {
   const { register, handleSubmit, formState: { errors } } = useForm()
@@ -22,7 +23,16 @@ function ForgotPassForm() {
 
   const handleForgotPassword = async (data) => {
     const { email } = data
-   // call api
+    try {
+      await forgotPassAPI(data)
+      toast.success('Reset link sent successfully!')
+      setSubmittedEmail(email)
+      setIsSubmitted(true)
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Forgot password error:', error)
+      // toast.error('Failed to send reset link. Please try again.')
+    }
   }
 
   if (isSubmitted) {
