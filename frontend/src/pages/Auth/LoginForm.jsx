@@ -23,6 +23,7 @@ import { FIELD_REQUIRED_MESSAGE, EMAIL_RULE, EMAIL_RULE_MESSAGE, PASSWORD_RULE, 
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
+import { loginUserAPI } from '~/redux/user/userSlice'
 import { toast } from 'react-toastify'
 import { useAuth0 } from '@auth0/auth0-react'
 import AuthLayout from '~/pages/Auth/AuthLayout'
@@ -35,6 +36,7 @@ function LoginForm() {
   const verifiedEmail = searchParams.get('verifiedEmail')
 
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { loginWithRedirect } = useAuth0()
 
   const handleGoogleLogin = () => {
@@ -48,7 +50,14 @@ function LoginForm() {
 
   const submitLogIn = (data) => {
     const { email, password } = data
-    // call API
+    toast.promise(
+      dispatch(loginUserAPI({ email, password })),
+      { pending: 'Logging in...' }
+    ).then((res) => {
+      if (!res.error) {
+        navigate('/boards', { replace: true })
+      }
+    })
   }
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))

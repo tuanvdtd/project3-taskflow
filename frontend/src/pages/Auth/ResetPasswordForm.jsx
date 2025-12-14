@@ -17,6 +17,7 @@ import { FIELD_REQUIRED_MESSAGE, PASSWORD_RULE, PASSWORD_RULE_MESSAGE, PASSWORD_
 import FieldErrorAlert from '~/components/Form/FieldErrorAlert'
 import { toast } from 'react-toastify'
 import AuthLayout from '~/pages/Auth/AuthLayout'
+import { resetPasswordAPI } from '~/apis'
 
 function ResetPasswordForm() {
   const { register, handleSubmit, formState: { errors }, watch } = useForm()
@@ -49,7 +50,19 @@ function ResetPasswordForm() {
 
   const handleResetPassword = async (data) => {
     const { password } = data
-   // call api
+    try {
+      await resetPasswordAPI({ email, token, password })
+      toast.success('Password reset successfully!')
+      setIsResetSuccess(true)
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        navigate('/login?message=password-reset-success')
+      }, 2000)
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Reset password error:', error)
+      // toast.error('Failed to reset password. Please try again.')
+    }
   }
 
   // Loading state

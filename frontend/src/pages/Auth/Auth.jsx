@@ -2,8 +2,8 @@ import { useLocation, Navigate } from 'react-router-dom'
 import Box from '@mui/material/Box'
 import LoginForm from './LoginForm'
 import RegisterForm from './RegisterForm'
-// import { useSelector } from 'react-redux'
-// import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import BackGroundAuth2 from '~/assets/auth/bg.jpg'
 import ForgotPassForm from './ForgotPassForm'
 import ResetPasswordForm from './ResetPasswordForm'
@@ -17,11 +17,11 @@ function Auth() {
   const isResetPassword = location.pathname === '/account/reset-password'
   // console.log('isReset', isResetPassword)
   // Nếu vẫn còn thông tin user trong storage thì không cần phải vào trang đăng nhập hay đăng ký nữa mà vào thẳng trang / luôn
-  // const currUser = useSelector(selectCurrentUser)
-  // if (currUser) {
-  //   // If user is logged in, redirect to home page
-  //   return <Navigate to="/boards" replace={true} />
-  // }
+  const currUser = useSelector(selectCurrentUser)
+  if (currUser) {
+    // If user is logged in, redirect to home page
+    return <Navigate to="/boards" replace={true} />
+  }
 
   return (
     <Box
