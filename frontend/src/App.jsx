@@ -41,6 +41,7 @@ export default function App() {
       <Route path='/account/verification' element= {<AccountVerification />} />
       <Route path='/account/reset-password' element= {<Auth />} />
       <Route path='*' element= {<NotFound />} />
+
     </Routes>
   )
 }
