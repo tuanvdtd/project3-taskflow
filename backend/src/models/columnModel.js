@@ -35,9 +35,65 @@ const createNew = async (data) => {
   }
 }
 
+const getColumnById = async (id) => {
+  try {
+    const column = await DB_GET().collection(COLUMN_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
+    return column
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const pushCardIds = async (card) => {
+  try {
+    const updateResult = await DB_GET().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(card.columnId) },
+      { $push: { cardOrderIds: new ObjectId(card._id) } },
+      { returnDocument: 'after' }
+    )
+    return updateResult
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+const UNCHANGE_FIELDS = ['_id', 'createdAt', 'boardId']
+
+const update = async (columnId, updateData) => {
+  try {
+    Object.keys(updateData).forEach((key) => {
+      if (UNCHANGE_FIELDS.includes(key)) {
+        delete updateData[key]
+      }
+    })
+    if (updateData.cardOrderIds) {
+      updateData.cardOrderIds = updateData.cardOrderIds.map(_id => new ObjectId(_id))
+    }
+    const updateResult = await DB_GET().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(columnId) },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    )
+    return updateResult
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const deleteOneById = async (id) => {
+  try {
+    const result = await DB_GET().collection(COLUMN_COLLECTION_NAME).deleteOne({ _id: new ObjectId(id) })
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
 
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
   COLUMN_COLLECTION_SCHEMA,
-  createNew
+  createNew,
+  getColumnById,
+  pushCardIds,
+  update,
+  deleteOneById
 }
