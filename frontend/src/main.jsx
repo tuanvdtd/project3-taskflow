@@ -20,6 +20,11 @@ import { Auth0Provider } from '@auth0/auth0-react'
 let persistor = persistStore(store)
 injectStore(store)
 
+// // cấu hình socketio => chuyển ra file riêng tránh render lại root
+// import { io } from "socket.io-client";
+// import { API_ROOT } from "./utils/constants";
+// export const socketIoInstance = io(API_ROOT)
+
 const rootElement = document.getElementById('root')
 // Tránh tạo lại khi reload
 if (!rootElement._reactRoot) {

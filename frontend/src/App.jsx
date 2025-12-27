@@ -1,9 +1,13 @@
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+import Board from '~/pages/Boards/_id'
 import NotFound from '~/pages/404/NotFound'
 import Auth from '~/pages/Auth/Auth'
 import AccountVerification from '~/pages/Auth/AccountVerification'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
+import Settings from '~/pages/Settings/Settings'
+import Boards from '~/pages/Boards/index'
 import Home from '~/pages/Home/Home'
 import Auth0Callback from './pages/Auth/Auth0Callback'
 
@@ -21,16 +25,53 @@ const LoginedRedirect = ({ user }) => {
   else return <Outlet />
 }
 
+const titleMap = {
+  '/': 'Home | My App',
+  '/boards': 'My Boards | My App',
+  '/settings/account': 'Account Settings | My App',
+  '/settings/security': 'Security Settings | My App',
+  '/login': 'Login | My App',
+  '/register': 'Sign Up | My App',
+  '/callback': 'Login with Auth0 | My App',
+  '/forgot-password': 'Forgot Password | My App',
+  '/account/verification': 'Account Verification | My App',
+  '/account/reset-password': 'Reset Password | My App'
+}
+
 export default function App() {
   const currUser = useSelector(selectCurrentUser)
+  const location = useLocation()
+
+  useEffect(() => {
+    const path = location.pathname
+
+    if (path.startsWith('/boards/') && path.split('/').length === 3) {
+      document.title = 'Board Details | My App'
+      return
+    }
+
+    document.title = titleMap[path] || 'Page Not Found | My App'
+  }, [location.pathname])
 
   return (
     <Routes>
+      {/* Chưa làm trang home => Tạm thời redirect về trang board đầu tiên */}
       {/* Khi dùng navigate và dùng replace thì sẽ không giữ lại '/' trong history, khi ta back lại bằng mũi tên trên trình duyệt sẽ quay lại trang trước đó, không phải trang '/' nữa */}
       {/* Nếu kh dùng replace thì khi back lại sẽ quay về trang '/' rồi nó lại tự navigate về trang board đầu tiên, nghĩa là luôn luôn ở trang board, không thể back lại */}
       <Route element= {<LoginedRedirect user={currUser} />} >
-        <Route path='/' element= {<Home />}
+        <Route path='/'
+          // element={<Navigate to='/boards' replace={true} />}
+          element= {<Home />}
         />
+      </Route>
+
+      {/* Route này bảo vệ các route con, nếu chưa có user thì không thể vào các route con bên trong */}
+      <Route element={<ProtectedRoute user={currUser} />}>
+        {/* Nếu đã login thì mới có thể truy cập vào route con này */}
+        <Route path='/boards/:boardId' element={<Board />} />
+        <Route path='/boards' element={<Boards />} />
+        <Route path='/settings/account' element={<Settings />} />
+        <Route path='/settings/security' element={<Settings />} />
       </Route>
 
       {/* Authentication */}
@@ -41,7 +82,6 @@ export default function App() {
       <Route path='/account/verification' element= {<AccountVerification />} />
       <Route path='/account/reset-password' element= {<Auth />} />
       <Route path='*' element= {<NotFound />} />
-
     </Routes>
   )
 }
