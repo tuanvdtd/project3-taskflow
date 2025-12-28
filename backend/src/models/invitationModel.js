@@ -22,6 +22,7 @@ const INVITATION_COLLECTION_SCHEMA = Joi.object({
   updatedAt: Joi.date().timestamp('javascript').default(null)
 })
 
+const UNCHANGE_FIELDS = ['_id', 'createdAt', 'inviteeId', 'inviterId', 'type']
 
 const validBeforeCreate = async (data) => {
   return await INVITATION_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
@@ -57,9 +58,86 @@ const createNewBoardInvitation = async (data) => {
   }
 }
 
+const getInvitationById = async (id) => {
+  try {
+    const invitation = await DB_GET().collection(INVITATION_COLLECTION_NAME).findOne({ _id: new ObjectId(id) })
+    return invitation
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const updateInvitationStatus = async (invitationId, updateData) => {
+  try {
+    Object.keys(updateData).forEach((key) => {
+      if (UNCHANGE_FIELDS.includes(key)) {
+        delete updateData[key]
+      }
+    })
+    const updateResult = await DB_GET().collection(INVITATION_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(invitationId) },
+      { $set: updateData
+        // { boardInvitation:
+        //   { status: updateData.status },
+        // updatedAt: Date.now()
+        // }
+      },
+      { returnDocument: 'after' }
+    )
+    return updateResult
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const findInvitationsByInviteeId = async (inviteeId) => {
+  const queryConditions = [
+    { inviteeId: new ObjectId(inviteeId) },
+    // Dk1 board chua xoa
+    { _destroy: false }
+  ]
+  try {
+    const invitations = await DB_GET().collection(INVITATION_COLLECTION_NAME).aggregate([
+      { $match: { $and: queryConditions } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'inviterId',
+        foreignField: '_id',
+        as: 'inviter',
+        // không muốn lấy các trường này từ bảng user gắn vào mảng owners thì đặt bằng 0
+        pipeline: [
+          { $project: { 'password': 0, 'verifyToken': 0 } }
+        ]
+      } },
+      { $lookup: {
+        from: userModel.USER_COLLECTION_NAME,
+        localField: 'inviteeId',
+        foreignField: '_id',
+        as: 'invitee',
+        pipeline: [
+          { $project: { 'password': 0, 'verifyToken': 0 } }
+        ]
+      } },
+      { $lookup: {
+        from: BoardModel.BOARD_COLLECTION_NAME,
+        localField: 'boardInvitation.boardId',
+        foreignField: '_id',
+        as: 'board'
+      } }
+    ]).toArray()
+    return invitations
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+
 export const invitationModel = {
   INVITATION_COLLECTION_NAME,
   INVITATION_COLLECTION_SCHEMA,
-  createNewBoardInvitation
+  createNewBoardInvitation,
+  getInvitationById,
+  updateInvitationStatus,
+  findInvitationsByInviteeId
 }
 
