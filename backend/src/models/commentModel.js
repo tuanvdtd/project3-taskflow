@@ -40,8 +40,79 @@ const createNew = async (data) => {
   }
 }
 
+const getCommentById = async (id) => {
+  try {
+    const comment = await DB_GET().collection(COMMENT_COLLECTION_NAME).findOne({ _id: new ObjectId(id) },
+      {
+        projection: {
+          boardId: 0,
+          userId: 0,
+          _destroy: 0
+        }
+      })
+    return comment
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const UNCHANGE_FIELDS = ['_id', 'createdAt', 'boardId', 'cardId', 'userId', 'userEmail']
+
+const update = async (commentId, updateData) => {
+  try {
+    Object.keys(updateData).forEach((key) => {
+      if (UNCHANGE_FIELDS.includes(key)) {
+        delete updateData[key]
+      }
+    })
+    updateData.updatedAt = Date.now()
+
+    const updatedComment = await DB_GET().collection(COMMENT_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(commentId) },
+      { $set: updateData },
+      { returnDocument: 'after' }
+    )
+    return updatedComment
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const deleteCommentById = async (commentId) => {
+  try {
+    const deletedComment = await DB_GET().collection(COMMENT_COLLECTION_NAME).findOneAndDelete({ _id: new ObjectId(commentId) })
+    return deletedComment
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+const deleteManyByColumnId = async (columnId) => {
+  try {
+    // Lấy tất cả cardIds thuộc columnId này
+    const cardIds = await DB_GET()
+      .collection('cards')
+      .find({ columnId: new ObjectId(columnId) }, { projection: { _id: 1 } })
+      .toArray()
+      .then(cards => cards.map(card => card._id))
+    // Xóa tất cả comments có cardId nằm trong danh sách cardIds
+    const result = await DB_GET().collection(COMMENT_COLLECTION_NAME).deleteMany({
+      cardId: { $in: cardIds }
+    })
+
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
+
 export const commentModel = {
   COMMENT_COLLECTION_NAME,
   COMMENT_COLLECTION_SCHEMA,
-  createNew
+  createNew,
+  getCommentById,
+  update,
+  deleteCommentById,
+  deleteManyByColumnId
 }
