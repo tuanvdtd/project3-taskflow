@@ -11,6 +11,9 @@ import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
 import cookieParser from 'cookie-parser'
 import socketIo from 'socket.io'
 import http from 'http'
+import { inviteUserToBoardSocket } from './sockets/inviteUserToBoardSocket'
+import { updateCardSocket } from './sockets/updateCardSocket'
+import { boardUpdateSocket } from './sockets/boardUpdateSocket'
 
 const START_SERVER = () => {
   const app = express()
@@ -69,6 +72,12 @@ const START_SERVER = () => {
   const io = socketIo(server, {
     cors: corsOptions
   })
+  // eslint-disable-next-line no-unused-vars
+  io.on('connection', (socket) => {
+    inviteUserToBoardSocket(socket)
+    updateCardSocket(socket)
+    boardUpdateSocket(socket)
+  })
 
   // Lắng nghe sự kiện kết nối socket
   if (env.BUILD_MODE === 'production') {
@@ -81,6 +90,7 @@ const START_SERVER = () => {
       console.log(`Hello ${env.AUTHOR}, I am running at http://${env.HOSTNAME}:${env.PORT}/`)
     })
   }
+
 
   exitHook(async () => {
     console.log('Shutting down database...')
@@ -100,16 +110,3 @@ const START_SERVER = () => {
   }
 
 })()
-
-// DB_CONNECT()
-//   .then(() => {
-//     console.log('Database connected successfully')
-//   })
-//   .then(() => {
-//     START_SERVER()
-//   })
-//   .catch(err => {
-//     // eslint-disable-next-line no-console
-//     console.error(err)
-//     process.exit(1)
-//   })
