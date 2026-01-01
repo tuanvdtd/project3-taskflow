@@ -10,6 +10,7 @@ import Settings from '~/pages/Settings/Settings'
 import Boards from '~/pages/Boards/index'
 import Home from '~/pages/Home/Home'
 import Auth0Callback from './pages/Auth/Auth0Callback'
+import { PricingPage } from './components/Pricing/PricingPage'
 
 const ProtectedRoute = ({ user }) => {
   if (!user) {
@@ -72,6 +73,7 @@ export default function App() {
         <Route path='/boards' element={<Boards />} />
         <Route path='/settings/account' element={<Settings />} />
         <Route path='/settings/security' element={<Settings />} />
+        <Route path='/pricing' element={<PricingPage />} />
       </Route>
 
       {/* Authentication */}
