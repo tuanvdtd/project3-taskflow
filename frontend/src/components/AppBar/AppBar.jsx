@@ -2,7 +2,7 @@ import { useState } from 'react'
 import ToggleTheme from '~/components/ModeSelect/ToggleTheme'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
+import { ReactComponent as TaskFlowIcon } from '~/assets/TaskFlow.svg'
 import SvgIcon from '@mui/material/SvgIcon'
 import Tooltip from '@mui/material/Tooltip'
 import Profile from './Menu/Profile'
@@ -31,7 +31,7 @@ function AppBar() {
       <Box
         px={2}
         sx={{
-          height: (theme) => theme.trello.appBarHeight,
+          height: (theme) => theme.TaskFlow.appBarHeight,
           width: '100%',
           display: 'flex',
           alignItems: 'center',
@@ -75,12 +75,12 @@ function AppBar() {
                 ml: 2
               }}
             >
-              <SvgIcon component={TrelloIcon} inheritViewBox />
+              <SvgIcon component={TaskFlowIcon} inheritViewBox />
               <Typography
                 variant="span"
                 sx={{ fontSize: '1.5rem', fontWeight: 'bold' }}
               >
-                Trello
+                TaskFlow
               </Typography>
             </Box>
             <IconButton onClick={handleDrawerToggle}>
@@ -111,12 +111,12 @@ function AppBar() {
                   color: 'white'
                 }}
               >
-                <SvgIcon component={TrelloIcon} inheritViewBox />
+                <SvgIcon component={TaskFlowIcon} inheritViewBox />
                 <Typography
                   variant="span"
                   sx={{ fontSize: '1.25rem', fontWeight: 'bold' }}
                 >
-                  Trello
+                  TaskFlow
                 </Typography>
               </Box>
             </Tooltip>

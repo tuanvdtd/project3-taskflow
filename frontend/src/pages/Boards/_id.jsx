@@ -168,7 +168,7 @@ function Board() {
         {<ActiveCard />}
         <AppBar />
         <Box sx = {{
-          height: (theme) => theme.trello.boardBarHeight + theme.trello.boardContentHeight,
+          height: (theme) => theme.TaskFlow.boardBarHeight + theme.TaskFlow.boardContentHeight,
           width: '100%',
           backgroundImage: board?.background?.backgroundType === 'image' ? `url(${board.background.backgroundUrl})` :
             board?.background?.backgroundType === 'gradient' ? board.background.backgroundUrl :

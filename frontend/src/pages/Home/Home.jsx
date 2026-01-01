@@ -51,7 +51,7 @@ function Home() {
             T
           </Box>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#172b4d' }}>
-            Trello
+            TaskFlow
           </Typography>
         </Box>
 
@@ -103,7 +103,7 @@ function Home() {
                   textAlign: { xs: 'center', md: 'left' }
                 }}
               >
-                Trello helps teams move work forward.
+                TaskFlow helps teams move work forward.
               </Typography>
             </motion.div>
             <motion.div
@@ -123,7 +123,7 @@ function Home() {
               >
                 Collaborate, manage projects, and reach new productivity peaks.
                 From high rises to the home office, the way your team works is
-                unique - accomplish it all with Trello.
+                unique - accomplish it all with TaskFlow.
               </Typography>
             </motion.div>
             <motion.div
@@ -344,7 +344,7 @@ function Home() {
             {[
               {
                 title: 'Boards',
-                description: 'Trello boards keep tasks organized and work moving forward.',
+                description: 'TaskFlow boards keep tasks organized and work moving forward.',
                 color: '#0079bf'
               },
               {
@@ -354,7 +354,7 @@ function Home() {
               },
               {
                 title: 'Cards',
-                description: 'The building blocks of Trello. Move cards across lists to show progress.',
+                description: 'The building blocks of TaskFlow. Move cards across lists to show progress.',
                 color: '#ff9f1a'
               }
             ].map((feature, index) => (
@@ -402,7 +402,7 @@ function Home() {
       <Box sx={{ bgcolor: '#f8f9fa', py: 4, borderTop: '1px solid #e0e0e0' }}>
         <Container maxWidth="lg">
           <Typography variant="body2" align="center" sx={{ color: '#5e6c84' }}>
-            © 2025 Trello Clone. Built with ❤️ using React & Material-UI
+            © 2025 TaskFlow Clone. Built with ❤️ using React & Material-UI
           </Typography>
         </Container>
       </Box>

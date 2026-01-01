@@ -283,7 +283,7 @@ export default RegisterForm
 // import Typography from '@mui/material/Typography'
 // // import { Card as MuiCard } from '@mui/material'
 // import MuiCard from '@mui/material/Card'
-// import { ReactComponent as TrelloIcon } from '~/assets/trello.svg'
+// import { ReactComponent as TaskFlowIcon } from '~/assets/TaskFlow.svg'
 // import CardActions from '@mui/material/CardActions'
 // import TextField from '@mui/material/TextField'
 // import Zoom from '@mui/material/Zoom'
@@ -326,10 +326,10 @@ export default RegisterForm
 //             gap: 1
 //           }}>
 //             <Avatar sx={{ bgcolor: 'primary.main' }}><LockIcon /></Avatar>
-//             <Avatar sx={{ bgcolor: 'primary.main' }}><TrelloIcon /></Avatar>
+//             <Avatar sx={{ bgcolor: 'primary.main' }}><TaskFlowIcon /></Avatar>
 //           </Box>
 //           <Box sx={{ marginTop: '1em', display: 'flex', justifyContent: 'center', color: theme => theme.palette.grey[500] }}>
-//             Trello Web
+//             TaskFlow Web
 //           </Box>
 //           <Box sx={{ padding: '0 1em 1em 1em' }}>
 //             <Box sx={{ marginTop: '1em' }}>

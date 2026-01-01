@@ -16,7 +16,7 @@ import qrcode from 'qrcode'
 import { twoFASecretKeyModel } from '~/models/2faSecretKeyModel'
 import { userSessionModel } from '~/models/userSessionModel'
 
-const serviceName = '2FA-Trello (MERN)'
+const serviceName = '2FA-TaskFlow (MERN)'
 
 const createNew = async (userData) => {
   // Logic to create a new user
@@ -63,7 +63,7 @@ const createNew = async (userData) => {
               <td>
                 <img src="https://img.icons8.com/fluency/96/mail.png" alt="Email Icon" width="80" height="80" style="display:block;margin:0 auto 24px;" />
                 <h1 style="font-size:28px;color:#111;margin:0 0 10px;">Xác nhận địa chỉ Email</h1>
-                <p style="color:#556070;font-size:15px;line-height:1.6;margin:0 0 22px;">Bạn vừa tạo một tài khoản Trello MERN mới. Vui lòng xác nhận địa chỉ email của bạn để chúng tôi biết bạn là chủ sở hữu hợp pháp của tài khoản này.</p>
+                <p style="color:#556070;font-size:15px;line-height:1.6;margin:0 0 22px;">Bạn vừa tạo một tài khoản TaskFlow MERN mới. Vui lòng xác nhận địa chỉ email của bạn để chúng tôi biết bạn là chủ sở hữu hợp pháp của tài khoản này.</p>
                 <a href="${verificationLink}" style="display:inline-block;background:#6c63ff;color:#ffffff;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:600;margin-bottom:14px;" target="_blank">Xác nhận địa chỉ email</a>
                 <p style="color:#9aa4b2;font-size:12px;margin-top:20px;">Nếu bạn không yêu cầu việc này, bạn có thể bỏ qua email này.</p>
               </td>
@@ -82,7 +82,7 @@ const createNew = async (userData) => {
     `
     // await ResendProvider.sendEmail({ to, subject, html })
     // Sử dụng Brevo để gửi email
-    const customSubject = 'Trello MERN: Please verify your email before using our services!'
+    const customSubject = 'TaskFlow MERN: Please verify your email before using our services!'
     // Gọi tới cái Provider gửi email
     await BrevoProvider.sendEmail(to, customSubject, html)
 
@@ -489,7 +489,7 @@ const forgotPassword = async (email) => {
     <p>If you did not request a password reset, please ignore this email.</p>
     <p>Thank you!</p>
     `
-    const customSubject = 'Trello MERN: Password Reset Request'
+    const customSubject = 'TaskFlow MERN: Password Reset Request'
     await BrevoProvider.sendEmail(to, customSubject, html)
     return { message: 'Password reset link has been sent to your email.' }
   }

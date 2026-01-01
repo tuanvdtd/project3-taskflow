@@ -23,7 +23,10 @@ export const env = {
   // Cloudinary
   CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
-  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+  // VNPAY
+  VNPAY_TMN_CODE: process.env.VNPAY_TMN_CODE,
+  VNPAY_SECRET_KEY: process.env.VNPAY_SECRET_KEY
 }
 
 // Log để debug
@@ -32,3 +35,4 @@ export const env = {
 //   ACCESS_TOKEN_SECRET: env.ACCESS_TOKEN_SECRET ? 'Set' : 'Not Set',
 //   REFRESH_TOKEN_SECRET: env.REFRESH_TOKEN_SECRET ? 'Set' : 'Not Set'
 // })
+

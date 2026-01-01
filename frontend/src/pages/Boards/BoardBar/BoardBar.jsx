@@ -55,7 +55,7 @@ function BoardBar({ board }) {
       <Box
         px={2}
         sx={{
-          height: (theme) => theme.trello.boardBarHeight,
+          height: (theme) => theme.TaskFlow.boardBarHeight,
           width: '100%',
           display: 'flex',
           alignItems: 'center',

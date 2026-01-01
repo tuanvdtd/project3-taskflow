@@ -15,7 +15,7 @@ import { MessageSquare, Paperclip, Users, Calendar, AlertCircle, Clock } from 'l
 import { differenceInDays, differenceInHours, isPast, isToday, isTomorrow } from 'date-fns'
 import { useColorScheme } from '@mui/material/styles'
 
-function TrelloCard({ card }) {
+function TaskFlowCard({ card }) {
   const { mode: darkMode } = useColorScheme()
   const dispatch = useDispatch()
   const {
@@ -228,4 +228,4 @@ function TrelloCard({ card }) {
   )
 }
 
-export default TrelloCard
+export default TaskFlowCard

@@ -170,7 +170,7 @@ function Column({ column }) {
             borderRadius: '6px',
             height: 'fit-content',
             maxHeight: (theme) =>
-              `calc(${theme.trello.boardContentHeight} - ${theme.spacing(5)})`
+              `calc(${theme.TaskFlow.boardContentHeight} - ${theme.spacing(5)})`
             // Thêm cursor styles
             // cursor: 'grab',
             // '&:hover': {
@@ -184,7 +184,7 @@ function Column({ column }) {
           {/* Column Header */}
           <Box
             sx={{
-              height: (theme) => theme.trello.columnHeaderHeight,
+              height: (theme) => theme.TaskFlow.columnHeaderHeight,
               p: 2,
               display: 'flex',
               direction: 'col',
@@ -292,7 +292,7 @@ function Column({ column }) {
           {/* Column Footer*/}
           <Box
             sx={{
-              height: (theme) => theme.trello.columnFooterHeight,
+              height: (theme) => theme.TaskFlow.columnFooterHeight,
               p: 2,
               display: 'flex',
               alignItems: 'center',

@@ -16,7 +16,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumn/Column/Column'
 
 import { cloneDeep, isEmpty } from 'lodash'
-import TrelloCard from './ListColumn/Column/ListCard/TrelloCard'
+import TaskFlowCard from './ListColumn/Column/ListCard/TaskFlowCard'
 import { generatePlaceholderCard } from '~/utils/formatter'
 import { useDragCursor } from '~/customHooks/useDragCursor'
 
@@ -305,7 +305,7 @@ function BoardContent({ board, moveColumnDnd, moveCardInSameColumnDnd, moveCardT
           sx={{
             // bgcolor: (theme) =>
             //   theme.palette.mode === "dark" ? "#34495e" : "#1976d2",
-            height: (theme) => theme.trello.boardContentHeight,
+            height: (theme) => theme.TaskFlow.boardContentHeight,
             width: '100%',
             p: '10px 0'
           }}
@@ -317,7 +317,7 @@ function BoardContent({ board, moveColumnDnd, moveCardInSameColumnDnd, moveCardT
               <Column column={activeDragItemData} />
             )}
             {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD && (
-              <TrelloCard card={activeDragItemData} />
+              <TaskFlowCard card={activeDragItemData} />
             )}
           </DragOverlay>
         </Box>
