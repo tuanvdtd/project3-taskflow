@@ -10,7 +10,7 @@ import Settings from '~/pages/Settings/Settings'
 import Boards from '~/pages/Boards/index'
 import Home from '~/pages/Home/Home'
 import Auth0Callback from './pages/Auth/Auth0Callback'
-import { PricingPage } from './components/Pricing/PricingPage'
+import VNPayReturn from './pages/Payment/VNPayReturn'
 
 const ProtectedRoute = ({ user }) => {
   if (!user) {
@@ -36,7 +36,9 @@ const titleMap = {
   '/callback': 'Login with Auth0 | My App',
   '/forgot-password': 'Forgot Password | My App',
   '/account/verification': 'Account Verification | My App',
-  '/account/reset-password': 'Reset Password | My App'
+  '/account/reset-password': 'Reset Password | My App',
+  '/pricing': 'Pricing | My App',
+  '/vnpay-return': 'Payment | My App'
 }
 
 export default function App() {
@@ -73,7 +75,7 @@ export default function App() {
         <Route path='/boards' element={<Boards />} />
         <Route path='/settings/account' element={<Settings />} />
         <Route path='/settings/security' element={<Settings />} />
-        <Route path='/pricing' element={<PricingPage />} />
+        <Route path='/settings/billing' element={<Settings />} />
       </Route>
 
       {/* Authentication */}
@@ -83,6 +85,10 @@ export default function App() {
       <Route path='/callback' element={<Auth0Callback />} />
       <Route path='/account/verification' element= {<AccountVerification />} />
       <Route path='/account/reset-password' element= {<Auth />} />
+
+      {/* Payment */}
+      <Route path='/vnpay-return' element={<VNPayReturn />} />
+
       <Route path='*' element= {<NotFound />} />
     </Routes>
   )

@@ -128,3 +128,7 @@ export const updateCommentAPI = async (commentId, updateData) => {
 }
 
 //------------------------------------------
+export const createPaymentAPI = async (data) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/payment/create-payment-url`, data)
+  return response.data
+}

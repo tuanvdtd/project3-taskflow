@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Check, Sparkles, ArrowLeft } from 'lucide-react'
-import { Button } from '@mui/material/Button'
+import Button from '@mui/material/Button'
+import { BillingModal } from './BillingModal'
 
 
 const plans = [
@@ -14,7 +15,6 @@ const plans = [
       { text: 'Basic task management', included: true },
       { text: 'Limited collaborators (up to 5)', included: true },
       { text: 'Basic labels and due dates', included: true },
-      { text: 'Mobile app access', included: true },
       { text: 'File attachments', included: false },
       { text: 'Custom backgrounds', included: false }
     ],
@@ -23,8 +23,8 @@ const plans = [
   },
   {
     name: 'Pro',
-    monthlyPrice: 12,
-    yearlyPrice: 10,
+    monthlyPrice: 300000,
+    yearlyPrice: 250000,
     description: 'Best for growing teams and professionals',
     features: [
       { text: 'Unlimited boards', included: true },
@@ -32,8 +32,7 @@ const plans = [
       { text: 'Advanced labels & filters', included: true },
       { text: 'Due dates & reminders', included: true },
       { text: 'File attachments (up to 250MB)', included: true },
-      { text: 'Custom backgrounds & themes', included: true },
-      { text: 'Activity log & history', included: true }
+      { text: 'Custom backgrounds & themes', included: true }
     ],
     ctaText: 'Upgrade to Pro',
     ctaVariant: 'contained',
@@ -44,9 +43,18 @@ const plans = [
 
 export function PricingPage({ onBack }) {
   const [billingPeriod, setBillingPeriod] = useState('monthly')
+  const [showBillingModal, setShowBillingModal] = useState(false)
+  const [selectedPlan, setSelectedPlan] = useState(null)
+
+  const handleUpgradeClick = (plan) => {
+    if (plan.name === 'Pro') {
+      setSelectedPlan(plan)
+      setShowBillingModal(true)
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-16 px-4">
+    <div className="min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Back Button */}
         {onBack && (
@@ -122,12 +130,14 @@ export function PricingPage({ onBack }) {
                   <p className="text-slate-600 text-sm mb-4">{plan.description}</p>
 
                   <div className="flex items-baseline gap-2">
-                    <span className="text-5xl text-slate-900">${price}</span>
+                    <span className="text-5xl text-slate-900">
+                      {price === 0 ? 'Miễn phí' : `${price.toLocaleString('vi-VN')}₫`}
+                    </span>
                     <div className="text-slate-600">
-                      <span>/ month</span>
+                      {price > 0 && <span>/ tháng</span>}
                       {billingPeriod === 'yearly' && price > 0 && (
                         <div className="text-xs text-green-600">
-                          Billed ${price * 12}/year
+                          Thanh toán {(price * 12).toLocaleString('vi-VN')}₫/năm
                         </div>
                       )}
                     </div>
@@ -160,6 +170,7 @@ export function PricingPage({ onBack }) {
                       }
                     })
                   }}
+                  onClick={() => handleUpgradeClick(plan)}
                 >
                   {plan.ctaText}
                 </Button>
@@ -250,6 +261,14 @@ export function PricingPage({ onBack }) {
           </Button>
         </div>
       </div>
+      {showBillingModal && selectedPlan && (
+        <BillingModal
+          open={showBillingModal}
+          plan={selectedPlan}
+          billingPeriod={billingPeriod}
+          onClose={() => setShowBillingModal(false)}
+        />
+      )}
     </div>
   )
 }

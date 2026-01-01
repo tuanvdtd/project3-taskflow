@@ -11,11 +11,14 @@ import PersonIcon from '@mui/icons-material/Person'
 import { Link, useLocation } from 'react-router-dom'
 import AccountTab from './AccountTab'
 import SecurityTab from './SecurityTab'
+import { PricingPage } from '~/components/Pricing/PricingPage'
+import PaymentIcon from '@mui/icons-material/Payment'
 
 // Khai báo đống tabs ra biến const để dùng lại cho gọn
 const TABS = {
   ACCOUNT: 'account',
-  SECURITY: 'security'
+  SECURITY: 'security',
+  BILLING: 'billing'
 }
 
 function Settings() {
@@ -51,10 +54,18 @@ function Settings() {
               iconPosition="start"
               component={Link}
               to="/settings/security" />
+            <Tab
+              label="Billing"
+              value={TABS.BILLING}
+              icon={<PaymentIcon />}
+              iconPosition="start"
+              component={Link}
+              to="/settings/billing" />
           </TabList>
         </Box>
         <TabPanel value={TABS.ACCOUNT}><AccountTab /></TabPanel>
         <TabPanel value={TABS.SECURITY}><SecurityTab /></TabPanel>
+        <TabPanel value={TABS.BILLING}><PricingPage /></TabPanel>
       </TabContext>
     </Container>
   )

@@ -1,6 +1,6 @@
 import React from 'react'
 import Box from '@mui/material/Box'
-import TrelloCard from './TrelloCard'
+import TaskFlowCard from './TaskFlowCard'
 import {
   SortableContext,
   verticalListSortingStrategy
@@ -23,10 +23,10 @@ function ListCard({ cards }) {
             overflowY: 'auto',
             overflowX: 'hidden',
             maxHeight: (theme) =>
-              `calc(${theme.trello.boardContentHeight} - ${theme.spacing(
+              `calc(${theme.TaskFlow.boardContentHeight} - ${theme.spacing(
                 5
-              )} - ${theme.trello.columnHeaderHeight} - ${
-                theme.trello.columnFooterHeight
+              )} - ${theme.TaskFlow.columnHeaderHeight} - ${
+                theme.TaskFlow.columnFooterHeight
               })`,
             '&::-webkit-scrollbar-thumb': {
               backgroundColor: '#ced0da'
@@ -37,7 +37,7 @@ function ListCard({ cards }) {
           }}
         >
           {cards.map((card) => {
-            return <TrelloCard key={card?._id} card={card} />
+            return <TaskFlowCard key={card?._id} card={card} />
           })}
         </Box>
       </SortableContext>
