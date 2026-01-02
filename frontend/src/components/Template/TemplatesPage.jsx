@@ -1,6 +1,15 @@
 import React, { useState } from 'react'
-import { Search, ArrowLeft, Sparkles, TrendingUp, Users, Briefcase, GraduationCap, Megaphone, Code, Palette, Layout } from 'lucide-react'
-import { Button, Chip, Dialog, DialogTitle, DialogContent, DialogActions, TextField } from '@mui/material'
+import { Search, Sparkles, TrendingUp, Users, Briefcase, GraduationCap, Megaphone, Code, Palette, Layout, Plus } from 'lucide-react'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import TextField from '@mui/material/TextField'
+import Typography from '@mui/material/Typography'
+import CreateBoard from '~/components/CreateBoard/CreateBoard'
+
 
 const templates = [
   {
@@ -143,12 +152,13 @@ const categories = [
   { value: 'Design', label: 'Design', icon: Palette }
 ]
 
-export function TemplatesPage({ onBack, onCreateFromTemplate, darkMode = false }) {
+export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const [boardName, setBoardName] = useState('')
   const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [showCreateBoardModal, setShowCreateBoardModal] = useState(false)
 
   // Filter templates
   const filteredTemplates = templates.filter(template => {
@@ -176,30 +186,39 @@ export function TemplatesPage({ onBack, onCreateFromTemplate, darkMode = false }
   }
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-slate-50 to-blue-50'} transition-colors duration-300`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div className={'min-h-screen transition-colors duration-300'}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {/* Header */}
         <div className="mb-8">
-          {onBack && (
-            <button
-              onClick={onBack}
-              className={`flex items-center gap-2 mb-6 px-4 py-2 rounded-lg transition-colors ${
-                darkMode
-                  ? 'text-gray-300 hover:text-white hover:bg-gray-800'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white'
-              }`}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex-1">
+              <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Board Templates
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Start faster with ready-made boards for popular workflows.
+              </Typography>
+            </div>
+            <Button
+              variant="contained"
+              onClick={() => setShowCreateBoardModal(true)}
+              startIcon={<Plus className="w-5 h-5" />}
+              sx={{
+                textTransform: 'none',
+                borderRadius: '10px',
+                px: 3,
+                py: 1.5,
+                bgcolor: '#155dfc',
+                '&:hover': {
+                  bgcolor: '#0d4ed8'
+                },
+                whiteSpace: 'nowrap',
+                ml: 2
+              }}
             >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </button>
-          )}
-
-          <h1 className={`mb-3 ${darkMode ? 'text-white' : 'text-slate-900'}`}>
-            Board Templates
-          </h1>
-          <p className={`text-lg mb-6 ${darkMode ? 'text-gray-400' : 'text-slate-600'}`}>
-            Start faster with ready-made boards for popular workflows.
-          </p>
+              Create from Scratch
+            </Button>
+          </div>
 
           {/* Search and Filters */}
           <div className="flex flex-col lg:flex-row gap-4 mb-6">
@@ -389,6 +408,11 @@ export function TemplatesPage({ onBack, onCreateFromTemplate, darkMode = false }
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Create Board Modal */}
+      {showCreateBoardModal && (
+        <CreateBoard showCreate={() => setShowCreateBoardModal(false)} />
+      )}
     </div>
   )
 }

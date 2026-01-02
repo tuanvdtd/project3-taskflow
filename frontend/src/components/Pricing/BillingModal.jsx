@@ -22,7 +22,7 @@ export function BillingModal({
       paymentProvider: 'vnpay',
       amount: billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice * 12
     }
-    console.log(data)
+    // console.log(data)
     setProcessing(true)
     const { success, paymentUrl } = await createPaymentAPI(data)
     if (success) {

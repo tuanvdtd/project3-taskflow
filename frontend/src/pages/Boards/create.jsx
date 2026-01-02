@@ -66,7 +66,11 @@ function SidebarCreateBoardModal({ handleCreateBoardSuccess, handleOpen, onClose
     try {
       const board = await createNewBoardAPI({ title, description, type })
       handleCloseModal()
-      handleCreateBoardSuccess()
+      // Refresh boards list if callback exists
+      if (handleCreateBoardSuccess) {
+        handleCreateBoardSuccess()
+      }
+      // Navigate to the newly created board
       navigate(`/boards/${board._id}`, { state: { isNewBoard: true } })
     } catch (error) {
       // eslint-disable-next-line no-console
