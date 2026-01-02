@@ -39,7 +39,7 @@ function AppBar() {
           gap: 2,
           overflowX: 'auto',
           position: 'sticky',
-          zIndex: 1,
+          zIndex: 1000,
           top: 0,
           left: 0,
           bgcolor: (theme) =>

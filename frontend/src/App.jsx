@@ -11,6 +11,7 @@ import Boards from '~/pages/Boards/index'
 import Home from '~/pages/Home/Home'
 import Auth0Callback from './pages/Auth/Auth0Callback'
 import VNPayReturn from './pages/Payment/VNPayReturn'
+import Templates from './pages/Templates/index'
 
 const ProtectedRoute = ({ user }) => {
   if (!user) {
@@ -38,7 +39,8 @@ const titleMap = {
   '/account/verification': 'Account Verification | My App',
   '/account/reset-password': 'Reset Password | My App',
   '/pricing': 'Pricing | My App',
-  '/vnpay-return': 'Payment | My App'
+  '/vnpay-return': 'Payment | My App',
+  '/templates': 'Templates | My App'
 }
 
 export default function App() {
@@ -76,6 +78,7 @@ export default function App() {
         <Route path='/settings/account' element={<Settings />} />
         <Route path='/settings/security' element={<Settings />} />
         <Route path='/settings/billing' element={<Settings />} />
+        <Route path='/templates' element={<Templates />} />
       </Route>
 
       {/* Authentication */}

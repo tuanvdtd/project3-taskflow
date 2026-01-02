@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Stack from '@mui/material/Stack'
@@ -12,7 +11,7 @@ import { styled } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import SidebarCreateBoardModal from '~/pages/Boards/create'
-import CreateBoard from '~/components/CreateBoard/CreateBoard'
+import { useNavigate, useLocation } from 'react-router-dom'
 
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -41,15 +40,24 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 }))
 
 const SidebarContent = ({
-  onItemClick,
   handleCreateBoardSuccess,
   isCreateModalOpen,
   onCloseCreateModal
 }) => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const currentUser = useSelector(selectCurrentUser)
-  const [showCreate, setShowCreate] = useState(false)
-  const handleShowCreate = () => {
-    setShowCreate(!showCreate)
+
+  const handleNavigateTemplates = () => {
+    navigate('/templates')
+  }
+
+  const handleNavigateBoards = () => {
+    navigate('/boards')
+  }
+
+  const handleNavigateHome = () => {
+    navigate('/')
   }
 
   return (
@@ -103,15 +111,24 @@ const SidebarContent = ({
           Workspace
         </Typography>
         <Stack direction="column" spacing={0.5} sx={{ mt: 1 }}>
-          <SidebarItem className="active" onClick={onItemClick}>
+          <SidebarItem
+            className={location.pathname === '/boards' || location.pathname.startsWith('/boards/') ? 'active' : ''}
+            onClick={handleNavigateBoards}
+          >
             <SpaceDashboardIcon fontSize="small" />
             Boards
           </SidebarItem>
-          <SidebarItem onClick={handleShowCreate}>
+          <SidebarItem
+            className={location.pathname === '/templates' ? 'active' : ''}
+            onClick={handleNavigateTemplates}
+          >
             <ListAltIcon fontSize="small" />
             Templates
           </SidebarItem>
-          <SidebarItem onClick={onItemClick}>
+          <SidebarItem
+            className={location.pathname === '/' ? 'active' : ''}
+            onClick={handleNavigateHome}
+          >
             <HomeIcon fontSize="small" />
             Home
           </SidebarItem>
@@ -187,9 +204,6 @@ const SidebarContent = ({
           ))}
         </Stack>
       </Box>
-      {showCreate && (
-        <CreateBoard showCreate={handleShowCreate} />
-      )}
     </Box>
 
   )

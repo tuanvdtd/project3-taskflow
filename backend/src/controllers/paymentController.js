@@ -5,7 +5,6 @@ import {
   ProductCode,
   IpnFailChecksum,
   IpnOrderNotFound,
-  IpnInvalidAmount,
   InpOrderAlreadyConfirmed,
   IpnUnknownError,
   IpnSuccess,
@@ -62,7 +61,7 @@ export const createPaymentUrl = async (req, res) => {
     })
 
     // Order
-    console.log('Order:', order)
+    // console.log('Order:', order)
 
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
@@ -97,44 +96,44 @@ export const createPaymentUrl = async (req, res) => {
 // Đoạn này xử lý với backend
 export const vnpayIPN = async (req, res) => {
   try {
-    console.log(req.query)
-    console.log('Nhận IPN từ VNPay:', req.query)
+    // console.log(req.query)
+    // console.log('Nhận IPN từ VNPay:', req.query)
 
     const verify = vnpay.verifyIpnCall(req.query)
-    console.log('Kết quả verify:', verify)
+    // console.log('Kết quả verify:', verify)
 
     if (!verify.isVerified) {
-      console.log('Sai checksum')
+      // console.log('Sai checksum')
       return res.json(IpnFailChecksum)
     }
 
     if (!verify.isSuccess) {
-      console.log('Giao dịch không thành công từ VNPay')
+      // console.log('Giao dịch không thành công từ VNPay')
       return res.json(IpnUnknownError)
     }
 
     //Tìm trong cơ sở dữ liệu
     const foundOrder = await paymentService.findPaymentById(verify.vnp_TxnRef)
-    console.log('Đơn hàng tìm thấy:', foundOrder)
+    // console.log('Đơn hàng tìm thấy:', foundOrder)
 
     if (!foundOrder) {
-      console.log('Không tìm thấy đơn hàng')
+      // console.log('Không tìm thấy đơn hàng')
       return res.json(IpnOrderNotFound)
     }
 
     if (verify.vnp_TxnRef !== foundOrder._id.toString()) {
-      console.log(
-        'Mã đơn hàng không khớp. Gửi:',
-        verify.vnp_TxnRef,
-        ' DB:',
-        foundOrder._id.toString()
-      )
+      // console.log(
+      //   'Mã đơn hàng không khớp. Gửi:',
+      //   verify.vnp_TxnRef,
+      //   ' DB:',
+      //   foundOrder._id.toString()
+      // )
       return res.json(IpnOrderNotFound)
     }
 
 
     if (foundOrder.status === 'active') {
-      console.log('Đơn hàng đã được xác nhận từ trước')
+      // console.log('Đơn hàng đã được xác nhận từ trước')
       return res.json(InpOrderAlreadyConfirmed)
     }
 
@@ -144,11 +143,11 @@ export const vnpayIPN = async (req, res) => {
       status: 'active'
     })
 
-    console.log('Cập nhật đơn hàng thành công:', foundOrder._id.toString())
+    // console.log('Cập nhật đơn hàng thành công:', foundOrder._id.toString())
 
     return res.json(IpnSuccess)
   } catch (error) {
-    console.error('Lỗi xảy ra trong xử lý IPN:', error)
+    // console.error('Lỗi xảy ra trong xử lý IPN:', error)
     return res.json(IpnUnknownError)
   }
 }
