@@ -4,6 +4,7 @@ import Container from '@mui/material/Container'
 import AppBar from '~/components/AppBar/AppBar'
 import BoardBar from '~/pages/Boards/BoardBar/BoardBar'
 import BoardContent from '~/pages/Boards/BoardContent/BoardContent'
+import CalendarView from '~/components/Calendar/CalendarView'
 // import { mockData } from "~/apis/mockdata";
 // import { mapOrder } from "~/utils/sort";
 import ActiveCard from '~/components/Modal/ActiveCard/ActiveCard'
@@ -32,6 +33,7 @@ import { socketIoInstance } from '~/socketClient'
 function Board() {
   // const [board, setBoard] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
+  const [viewMode, setViewMode] = useState('board')
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
   // Bắt buộc phải lấy đúng tên boardId từ URL params để gọi API
@@ -179,15 +181,18 @@ function Board() {
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed' }}>
-
-          <BoardBar board={board} />
-          <BoardContent
-            board={board}
-
-            moveColumnDnd={moveColumnDnd}
-            moveCardInSameColumnDnd={moveCardInSameColumnDnd}
-            moveCardToDiffColumnDnd={moveCardToDiffColumnDnd}
-          />
+          <BoardBar board={board} viewMode={viewMode} onChangeViewMode={setViewMode} />
+          {viewMode === 'board' && (
+            <BoardContent
+              board={board}
+              moveColumnDnd={moveColumnDnd}
+              moveCardInSameColumnDnd={moveCardInSameColumnDnd}
+              moveCardToDiffColumnDnd={moveCardToDiffColumnDnd}
+            />
+          )}
+          {viewMode === 'calendar' && (
+            <CalendarView />
+          )}
         </Box>
       </Container>
     </>
