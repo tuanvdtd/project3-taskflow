@@ -1,9 +1,6 @@
-import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 import DashboardIcon from '@mui/icons-material/Dashboard'
-import VpnLockIcon from '@mui/icons-material/VpnLock'
-import AddToDriveIcon from '@mui/icons-material/AddToDrive'
 import BoltIcon from '@mui/icons-material/Bolt'
 import FilterListIcon from '@mui/icons-material/FilterList'
 // import Avatar from "@mui/material/Avatar";
@@ -11,7 +8,6 @@ import FilterListIcon from '@mui/icons-material/FilterList'
 import Tooltip from '@mui/material/Tooltip'
 // import Button from "@mui/material/Button";
 // import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { capitalizeFirstLetter } from '~/utils/formatter'
 import BoardUserGroup from './BoardUserGroup'
 import InviteBoardUser from './InviteBoardUser'
 import BackgroundSelector from '~/components/BackgroundSelector'
@@ -20,6 +16,8 @@ import { updateBoardDetailsAPI } from '~/apis'
 import { useDispatch } from 'react-redux'
 import { updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { cloneDeep } from 'lodash'
+import { LayoutDashboard, Calendar as CalendarIcon } from 'lucide-react'
+import { useState } from 'react'
 
 const MenuStyle = {
   color: 'white',
@@ -38,7 +36,7 @@ const MenuStyle = {
 }
 
 
-function BoardBar({ board }) {
+function BoardBar({ board, viewMode, onChangeViewMode }) {
   const [modalOpen, setModalOpen] = useState(false)
   const dispatch = useDispatch()
 
@@ -72,45 +70,10 @@ function BoardBar({ board }) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Tooltip title={board?.description}>
             <Box sx={{ display: 'flex', alignItems: 'center' }} data-tour="board-title">
-
-              {/*<Chip
-              data-tour="board-title"
-              icon={<DashboardIcon />}
-              label={<ToggleFocusInput
-              value={board?.title}
-              onChangedValue={updateBoardTitle}
-              sx={{ '& .MuiOutlinedInput-input': {
-                color: 'white !important'
-                } }}
-                id={`toggle-focus-input-controlled-${board._id}`}
-                data-tour="board-title"
-                /> }
-                clickable
-                sx={MenuStyle}
-                /> */}
-
               <DashboardIcon sx={{ color: 'white' }} />
               <ToggleFocusInput
                 value={board?.title}
                 onChangedValue={updateBoardTitle}
-                // sx={{
-                //   '& .MuiOutlinedInput-input': {
-                //     color: 'white !important',
-                //     fontSize: '15px',
-                //     fontWeight: 500,
-                //   },
-                //   '& .MuiOutlinedInput-root': {
-                //     '& input': {
-                //       color: 'white !important'
-                //     }
-                //   },
-                //   // Màu khi focus (nếu muốn giữ trắng khi focus)
-                //   '& .MuiOutlinedInput-root.Mui-focused': {
-                //     '& .MuiOutlinedInput-input': {
-                //       color: 'white !important' // Hoặc 'black' nếu muốn đổi màu khi focus
-                //     }
-                //   }
-                // }}
                 color="white"
                 sx= {MenuStyle}
                 id={`toggle-focus-input-controlled-${board._id}`}
@@ -125,19 +88,76 @@ function BoardBar({ board }) {
             /> */}
           </Tooltip>
 
-          <Chip
+          {/* <Chip
             icon={<VpnLockIcon />}
             label={capitalizeFirstLetter(board?.type)}
             clickable
             sx={MenuStyle}
-          />
-
-          <Chip
+          /> */}
+          {/* <Chip
             icon={<AddToDriveIcon />}
             label="Add to Google Drive"
             clickable
             sx={MenuStyle}
-          />
+          /> */}
+
+          <div className="flex gap-1 p-1 rounded-lg" style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.2)'
+          }}>
+            <button
+              onClick={() => onChangeViewMode && onChangeViewMode('board')}
+              className="px-4 py-2 rounded-lg transition-all flex items-center gap-2"
+              style={{
+                backgroundColor: viewMode === 'board' ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: viewMode === 'board' ? '600' : '400',
+                fontSize: '14px'
+              }}
+              onMouseEnter={(e) => {
+                if (viewMode !== 'board') {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (viewMode !== 'board') {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }
+              }}
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              Board
+            </button>
+            <button
+              onClick={() => onChangeViewMode && onChangeViewMode('calendar')}
+              className="px-4 py-2 rounded-lg transition-all flex items-center gap-2"
+              style={{
+                backgroundColor: viewMode === 'calendar' ? 'rgba(255, 255, 255, 0.25)' : 'transparent',
+                color: 'white',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: viewMode === 'calendar' ? '600' : '400',
+                fontSize: '14px'
+              }}
+              onMouseEnter={(e) => {
+                if (viewMode !== 'calendar') {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.15)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (viewMode !== 'calendar') {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }
+              }}
+            >
+              <CalendarIcon className="w-4 h-4" />
+              Calendar
+            </button>
+          </div>
 
           <Chip
             data-tour="board-menu"
@@ -175,45 +195,6 @@ function BoardBar({ board }) {
             Invite
           </Button> */}
           <InviteBoardUser boardId={board._id} />
-
-          {/* <AvatarGroup
-            max={4}
-            sx={{
-              "& .MuiAvatar-root": {
-                width: 34,
-                height: 34,
-                fontSize: "16px",
-                border: "none",
-                cursor: "pointer",
-                "&:first-of-type": { bgcolor: "#a4b0de" },
-              },
-            }}
-          >
-            <Tooltip title="Tuan">
-              <Avatar
-                alt="tuan"
-                src="https://mui.com/static/images/avatar/1.jpg"
-              />
-            </Tooltip>
-            <Tooltip title="Tuan">
-              <Avatar
-                alt="tuan"
-                src="https://mui.com/static/images/avatar/2.jpg"
-              />
-            </Tooltip>
-            <Tooltip title="Tuan">
-              <Avatar
-                alt="tuan"
-                src="https://mui.com/static/images/avatar/2.jpg"
-              />
-            </Tooltip>
-            <Tooltip title="Tuan">
-              <Avatar alt="tuan" src="/static/images/avatar/1.jpg" />
-            </Tooltip>
-            <Tooltip title="Tuan">
-              <Avatar alt="tuan" src="/static/images/avatar/1.jpg" />
-            </Tooltip>
-          </AvatarGroup> */}
           <BoardUserGroup boardUsers={board.allUsers} />
 
         </Box>
