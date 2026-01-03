@@ -7,6 +7,7 @@ import { userRoute } from './userRoute'
 import { inviteUserRoute } from './inviteUserRoute'
 import { commentRoute } from './commentRoute'
 import { paymentRoute } from './paymentRoutes'
+import { attachmentRoute } from './attachmentRoute'
 
 const Router = express.Router()
 
@@ -29,5 +30,7 @@ Router.use('/invitations', inviteUserRoute)
 
 Router.use('/comments', commentRoute)
 Router.use('/payment', paymentRoute)
+
+Router.use('/attachments', attachmentRoute)
 
 export const Router_V1 = Router

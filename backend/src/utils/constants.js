@@ -5,7 +5,7 @@ import { env } from '~/config/environment'
  * Danh sách các domain được phép truy cập API
  */
 
-export const WHITELIST_DOMAINS = ['https://TaskFlow-web-beige.vercel.app']
+export const WHITELIST_DOMAINS = [env.WEBSITE_DOMAIN_DEV, env.WEBSITE_DOMAIN_PRODUCTION]
 
 export const BOARD_TYPE = {
   PUBLIC: 'public',
