@@ -6,6 +6,7 @@ import { BOARD_TYPE } from '~/utils/constants'
 import { columnModel } from './columnModel'
 import { cardModel } from './cardModel'
 import { userModel } from './userModel'
+import { attachmentModel } from './attachmentModel'
 import { pagingSkipValue } from '~/utils/algorithms'
 import { commentModel } from './commentModel'
 
@@ -96,6 +97,34 @@ const getDetails = async (userId, boardId) => {
           { $project: {
             boardId: 0,
             _destroy: 0 } }
+        ]
+      } },
+      { $lookup: {
+        from: attachmentModel.ATTACHMENT_COLLECTION_NAME,
+        localField: '_id',
+        foreignField: 'boardId',
+        as: 'attachments',
+        pipeline: [
+          { $lookup: {
+            from: userModel.USER_COLLECTION_NAME,
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user',
+            pipeline: [
+              { $project: { displayName: 1 } }
+            ]
+          } },
+          { $unwind: '$user' },
+          { $project: {
+            // Giữ lại các trường cần dùng
+            cardId: 1,
+            name: 1,
+            size: 1,
+            createdAt: 1,
+            cloudinaryUrl: 1,
+            // Map displayName sang userName
+            userName: '$user.displayName'
+          } }
         ]
       } },
       { $lookup: {

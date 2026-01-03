@@ -65,9 +65,12 @@ const getDetails = async (userId, boardId) => {
       throw new ApiError(StatusCodes.NOT_FOUND, `Board with id ${boardId} not found`)
     }
     const boardClone = cloneDeep(board)
-    // Đầu tiên gắn comments vào đúng card
+    // Đầu tiên gắn comments và attachments vào đúng card
     boardClone.cards.forEach(card => {
       card.comments = boardClone.comments.filter(comment => comment.cardId.toString() === card._id.toString())
+      if (boardClone.attachments) {
+        card.attachments = boardClone.attachments.filter(attachment => attachment.cardId.toString() === card._id.toString())
+      }
     })
     // Sau đó gắn card vào đúng column
     boardClone.columns.forEach(column => {
@@ -76,6 +79,7 @@ const getDetails = async (userId, boardId) => {
 
     delete boardClone.cards
     delete boardClone.comments
+  delete boardClone.attachments
 
     return boardClone
   } catch (error) {

@@ -8,7 +8,6 @@ import Grid from '@mui/material/Grid'
 import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
-import LocalOfferOutlinedIcon from '@mui/icons-material/LocalOfferOutlined'
 import TaskAltOutlinedIcon from '@mui/icons-material/TaskAltOutlined'
 import WatchLaterOutlinedIcon from '@mui/icons-material/WatchLaterOutlined'
 import AttachFileOutlinedIcon from '@mui/icons-material/AttachFileOutlined'
@@ -27,14 +26,14 @@ import DvrOutlinedIcon from '@mui/icons-material/DvrOutlined'
 
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import VisuallyHiddenInput from '~/components/Form/VisuallyHiddenInput'
-import { singleFileValidator } from '~/utils/validators'
+import { singleFileValidator, singleAttachmentValidator } from '~/utils/validators'
 import { toast } from 'react-toastify'
 import CardUserGroup from './CardUserGroup'
 import CardDescriptionMdEditor from './CardDescriptionMdEditor'
 import CardActivitySection from './CardActivitySection'
 import { useDispatch, useSelector } from 'react-redux'
 import { hideAndClearCurrentActiveCard, selectCurrentActiveCard, updateCurrentActiveCard, selectShowActiveCardModal } from '~/redux/activeCard/activeCardSlice'
-import { updateCardDetailsAPI } from '~/apis'
+import { updateCardDetailsAPI, uploadCardAttachmentAPI, deleteAttachmentAPI } from '~/apis'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import { CARD_MEMBER_ACTIONS } from '~/utils/constants'
@@ -46,6 +45,9 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import Popover from '@mui/material/Popover'
 import moment from 'moment'
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
+import { Paperclip, FileText, ExternalLink, Trash2 } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
+import IconButton from '@mui/material/IconButton'
 
 import { styled } from '@mui/material/styles'
 import { cloneDeep } from 'lodash'
@@ -153,6 +155,64 @@ function ActiveCard() {
       }),
       {
         pending: 'Updating...'
+      }
+    )
+  }
+
+  const onUploadCardAttachment = (event) => {
+    const file = event.target?.files?.[0]
+    const error = singleAttachmentValidator(file)
+    if (error) {
+      toast.error(error)
+      return
+    }
+
+    const reqData = new FormData()
+    reqData.append('cardAttachment', file)
+    reqData.append('boardId', activeCard.boardId)
+    reqData.append('cardId', activeCard._id)
+
+    toast.promise(
+      uploadCardAttachmentAPI(reqData).then((newAttachment) => {
+        const updatedCard = cloneDeep(activeCard)
+        if (!Array.isArray(updatedCard.attachments)) updatedCard.attachments = []
+        updatedCard.attachments.push(newAttachment)
+        dispatch(updateCurrentActiveCard(updatedCard))
+        dispatch(updateCardInBoard(updatedCard))
+      }).finally(() => {
+        event.target.value = ''
+      }),
+      {
+        pending: 'Uploading attachment...',
+        success: 'Attachment uploaded successfully!',
+        error: 'Failed to upload attachment.'
+      }
+    )
+  }
+
+  const formatFileSize = (bytes) => {
+    if (!bytes) return ''
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
+  }
+
+  const onDeleteAttachment = async (attachmentId) => {
+    if (!attachmentId) return
+
+    toast.promise(
+      deleteAttachmentAPI(attachmentId).then(() => {
+        const updatedCard = cloneDeep(activeCard)
+        updatedCard.attachments = (updatedCard.attachments || []).filter(att => att._id !== attachmentId)
+        dispatch(updateCurrentActiveCard(updatedCard))
+        dispatch(updateCardInBoard(updatedCard))
+      }),
+      {
+        pending: 'Removing attachment...',
+        success: 'Attachment removed successfully!',
+        error: 'Failed to remove attachment.'
       }
     )
   }
@@ -304,6 +364,76 @@ function ActiveCard() {
                 cardDescriptionProp={activeCard?.description} />
             </Box>
 
+            {/*  Attachments List */}
+            {activeCard?.attachments.length > 0 && (
+              <Box sx={{ mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Paperclip className="w-5 h-5" />
+                  <Typography variant="span" sx={{ fontWeight: '600', fontSize: '20px' }}>Attachments</Typography>
+                </Box>
+                <div className="space-y-2 mb-3">
+                  <AnimatePresence>
+                    {activeCard?.attachments.map((attachment) => {
+                      const uploader = attachment.userName
+                      const isPdf = attachment.type === 'pdf' || attachment.name?.toLowerCase().endsWith('.pdf')
+                      return (
+                        <motion.div
+                          key={attachment._id}
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
+                          className={'p-4 rounded-lg flex items-center gap-3 bg-gray-50 hover:bg-gray-100 transition-colors group'}
+                        >
+                          {/* Icon */}
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                            isPdf
+                              ? 'bg-red-100 dark:bg-red-900/30'
+                              : 'bg-blue-100 dark:bg-blue-900/30'
+                          }`}>
+                            <FileText className={`w-5 h-5 ${
+                              isPdf ? 'text-red-600' : 'text-blue-600'
+                            }`} />
+                          </div>
+                          {/* File Info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm truncate text-gray-900">
+                              {attachment.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {attachment.size && formatFileSize(attachment.size)} •
+                              Uploaded by {uploader} on {attachment.createdAt ? moment(attachment.createdAt).format('LL') : 'Unknown date'}
+                            </p>
+                          </div>
+                          {/* Actions */}
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {attachment.cloudinaryUrl && attachment.cloudinaryUrl !== '#' && (
+                              <IconButton
+                                onClick={() => window.open(attachment.cloudinaryUrl, '_blank')}
+                                size="small"
+                                style={{ color: '#3b82f6' }}
+                                title="View PDF"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </IconButton>
+                            )}
+                            <IconButton
+                              size="small"
+                              style={{ color: '#ef4444' }}
+                              title="Remove"
+                              onClick={() => onDeleteAttachment(attachment._id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </IconButton>
+                          </div>
+                        </motion.div>
+                      )
+                    })}
+                  </AnimatePresence>
+                </div>
+              </Box>
+            )}
+
+
             <Box sx={{ mb: 3 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <DvrOutlinedIcon />
@@ -350,8 +480,15 @@ function ActiveCard() {
                 <VisuallyHiddenInput type="file" onChange={onUploadCardCover} />
               </SidebarItem>
 
-              <SidebarItem><AttachFileOutlinedIcon fontSize="small" />Attachment</SidebarItem>
-              <SidebarItem><LocalOfferOutlinedIcon fontSize="small" />Labels</SidebarItem>
+              <SidebarItem className="active" component="label">
+                <AttachFileOutlinedIcon fontSize="small" />
+                  Attachment
+                <VisuallyHiddenInput
+                  type="file"
+                  accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  onChange={onUploadCardAttachment}
+                />
+              </SidebarItem>
               <SidebarItem><TaskAltOutlinedIcon fontSize="small" />Checklist</SidebarItem>
               <SidebarItem className="active" onClick={handleClickDatePicker}>
                 <WatchLaterOutlinedIcon fontSize="small" />
@@ -394,7 +531,6 @@ function ActiveCard() {
 
             <Typography sx={{ fontWeight: '600', color: 'primary.main', mb: 1 }}>Power-Ups</Typography>
             <Stack direction="column" spacing={1}>
-              <SidebarItem><AspectRatioOutlinedIcon fontSize="small" />Card Size</SidebarItem>
               <SidebarItem><AddToDriveOutlinedIcon fontSize="small" />Google Drive</SidebarItem>
               <SidebarItem><AddOutlinedIcon fontSize="small" />Add Power-Ups</SidebarItem>
             </Stack>

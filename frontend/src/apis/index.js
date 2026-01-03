@@ -132,3 +132,15 @@ export const createPaymentAPI = async (data) => {
   const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/payment/create-payment-url`, data)
   return response.data
 }
+
+//----------------Attachment API----------------------------------
+
+export const uploadCardAttachmentAPI = async (formData) => {
+  const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/attachments`, formData)
+  return response.data
+}
+
+export const deleteAttachmentAPI = async (attachmentId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/attachments/${attachmentId}`)
+  return response.data
+}

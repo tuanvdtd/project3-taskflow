@@ -11,6 +11,8 @@ export const PASSWORD_CONFIRMATION_MESSAGE = 'Password Confirmation does not mat
 
 // Liên quan đến Validate File
 export const LIMIT_COMMON_FILE_SIZE = 10485760 // byte = 10 MB
+
+// Validate dành cho ảnh (cover)
 export const ALLOW_COMMON_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png']
 export const singleFileValidator = (file) => {
   if (!file || !file.name || !file.size || !file.type) {
@@ -21,6 +23,26 @@ export const singleFileValidator = (file) => {
   }
   if (!ALLOW_COMMON_FILE_TYPES.includes(file.type)) {
     return 'File type is invalid. Only accept jpg, jpeg and png'
+  }
+  return null
+}
+
+// Validate dành cho file đính kèm (pdf, word)
+export const ALLOW_ATTACHMENT_FILE_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+]
+
+export const singleAttachmentValidator = (file) => {
+  if (!file || !file.name || !file.size || !file.type) {
+    return 'File cannot be blank.'
+  }
+  if (file.size > LIMIT_COMMON_FILE_SIZE) {
+    return 'Maximum file size exceeded. (10MB)'
+  }
+  if (!ALLOW_ATTACHMENT_FILE_TYPES.includes(file.type)) {
+    return 'File type is invalid. Only accept PDF or Word documents.'
   }
   return null
 }

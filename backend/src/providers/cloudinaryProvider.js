@@ -19,24 +19,27 @@ cloudinaryv2.config(
   }
 )
 
-// Khởi tạo file
+// Khởi tạo file (dùng resource_type: 'auto' để hỗ trợ cả image, pdf, word...)
 const streamUpload = (fileBuffer, folderName) => {
   return new Promise((resolve, reject) => {
     // Tạo 1 luồng stream upload lên cloudinary
-    const stream = cloudinaryv2.uploader.upload_stream({ folder: folderName },
-      (error, result) => {
-        if (result) {
-          resolve(result)
-        } else {
-          reject(error)
-        }
-      })
+    const stream = cloudinaryv2.uploader.upload_stream({
+      folder: folderName,
+      resource_type: 'auto'
+    },
+    (error, result) => {
+      if (result) {
+        resolve(result)
+      } else {
+        reject(error)
+      }
+    })
     // Thực hiện upload luồng stream
     streamifier.createReadStream(fileBuffer).pipe(stream)
   })
 }
 
-// Upload với public_id cố định và overwrite
+// Upload với public_id cố định và overwrite (dùng cho cover, attachment...)
 const streamUploadWithOverwrite = (fileBuffer, folderName, publicId) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinaryv2.uploader.upload_stream({
@@ -55,6 +58,11 @@ const streamUploadWithOverwrite = (fileBuffer, folderName, publicId) => {
     })
     streamifier.createReadStream(fileBuffer).pipe(stream)
   })
+}
+
+// Upload attachment (pdf/word) – thực chất dùng chung logic với streamUploadWithOverwrite
+const streamUploadAttachment = (fileBuffer, folderName, publicId) => {
+  return streamUploadWithOverwrite(fileBuffer, folderName, publicId)
 }
 
 const streamUploadAvatarWithOverwrite = (fileBuffer, folderName, publicId) => {
@@ -90,7 +98,7 @@ const streamUploadAvatarWithOverwrite = (fileBuffer, folderName, publicId) => {
   })
 }
 
-// Xóa ảnh theo public_id (vẫn cần cho trường hợp khác)
+// Xóa ảnh (image) theo public_id (dùng cho avatar, cover...)
 const destroy = async (publicId) => {
   // eslint-disable-next-line no-useless-catch
   try {
@@ -101,10 +109,34 @@ const destroy = async (publicId) => {
   }
 }
 
+// Xóa file attachment (pdf/word/raw) theo public_id
+// Dùng cloudinaryUrl để đoán resource_type (raw/image)
+const destroyAttachment = async (publicId, cloudinaryUrl) => {
+  // eslint-disable-next-line no-useless-catch
+  try {
+    let resourceType = 'raw'
+
+    if (cloudinaryUrl) {
+      if (cloudinaryUrl.includes('/image/')) {
+        resourceType = 'image'
+      } else if (cloudinaryUrl.includes('/raw/')) {
+        resourceType = 'raw'
+      }
+    }
+
+    const res = await cloudinaryv2.uploader.destroy(publicId, { resource_type: resourceType })
+    return res
+  } catch (error) {
+    throw error
+  }
+}
+
 export const cloudinaryProvider = {
   streamUpload,
   streamUploadWithOverwrite,
+  streamUploadAttachment,
   destroy,
+  destroyAttachment,
   streamUploadAvatarWithOverwrite
 }
 

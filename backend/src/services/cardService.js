@@ -35,14 +35,6 @@ const update = async (cardId, resBody, cardCoverFile) => {
       )
       // Lưu lại url avatar vào database
       updatedData = await cardModel.update(cardId, { cover: cardCover.secure_url })
-    // } else if (updateData.newComment) {
-    //   const commentData = {
-    //     ...updateData.newComment,
-    //     userId: userInfo._id,
-    //     userEmail: userInfo.email,
-    //     commentedAt: Date.now()
-    //   }
-    //   updatedData = await cardModel.addCommentToFirst(cardId, commentData)
       // join, remove member
     } else if (updateData.updateMemberCardData) {
       updatedData = await cardModel.updateCardMembers(cardId, updateData.updateMemberCardData)
