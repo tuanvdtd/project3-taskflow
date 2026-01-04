@@ -42,6 +42,15 @@ export const updateUserAPI = createAsyncThunk(
   }
 )
 
+// Đồng bộ thông tin user từ endpoint /me (kèm plan, boardLimit...)
+export const fetchCurrentUserAPI = createAsyncThunk(
+  'user/fetchCurrentUser',
+  async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/me`)
+    return response.data
+  }
+)
+
 export const logoutUserAPI = createAsyncThunk(
   'user/logout',
   async (showNotification = true) => {
@@ -86,6 +95,10 @@ export const userSlice = createSlice({
     builder.addCase(updateUserAPI.fulfilled, (state, action) => {
       // action.payload là dữ liệu trả về từ API (response.data)
       state.currentUser = action.payload
+    })
+    builder.addCase(fetchCurrentUserAPI.fulfilled, (state, action) => {
+      const user = action.payload
+      state.currentUser = user
     })
   }
 })

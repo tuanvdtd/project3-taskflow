@@ -4,9 +4,11 @@ import Stack from '@mui/material/Stack'
 import Divider from '@mui/material/Divider'
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
+import LinearProgress from '@mui/material/LinearProgress'
 import SpaceDashboardIcon from '@mui/icons-material/SpaceDashboard'
 import ListAltIcon from '@mui/icons-material/ListAlt'
 import HomeIcon from '@mui/icons-material/Home'
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium'
 import { styled } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
@@ -48,6 +50,11 @@ const SidebarContent = ({
   const location = useLocation()
   const currentUser = useSelector(selectCurrentUser)
 
+  const plan = currentUser?.plan || 'free'
+  const isPro = plan === 'pro'
+  const boardLimit = currentUser?.boardLimit
+  const currentBoardCount = currentUser?.currentBoardCount
+
   const handleNavigateTemplates = () => {
     navigate('/templates')
   }
@@ -72,9 +79,19 @@ const SidebarContent = ({
         display: 'none'
       }
     }}>
-      {/* User Profile Section */}
-      <Box sx={{ mb: 3, p: 2, borderRadius: 2, borderColor:'#34495e', borderWidth: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+      {/* User Profile & Plan */}
+      <Box
+        sx={{
+          mb: 3,
+          p: 2.2,
+          borderRadius: 3,
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+          boxShadow: '0 8px 18px rgba(15,23,42,0.08)'
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5 }}>
           <Avatar
             sx={{ bgcolor: 'primary.main', width: 40, height: 40 }}
             alt={currentUser?.displayName || 'JD'}
@@ -89,12 +106,64 @@ const SidebarContent = ({
             </Typography>
           </Box>
         </Box>
-        <Chip
-          label="Pro Plan"
-          size="small"
-          color="primary"
-          sx={{ fontSize: '0.75rem' }}
-        />
+        <Box
+          sx={{
+            mt: 1,
+            p: 1.2,
+            borderRadius: 2,
+            background: isPro
+              ? 'linear-gradient(135deg, rgba(59,130,246,0.12), rgba(129,140,248,0.12))'
+              : 'linear-gradient(135deg, rgba(148,163,184,0.08), rgba(226,232,240,0.2))'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.8 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {isPro && (
+                <WorkspacePremiumIcon sx={{ fontSize: 18, color: 'primary.main' }} />
+              )}
+              <Typography variant="body2" fontWeight={600}>
+                {isPro ? 'Pro workspace' : 'Free workspace'}
+              </Typography>
+            </Box>
+            <Chip
+              label={isPro ? 'PRO' : 'FREE'}
+              size="small"
+              color={isPro ? 'primary' : 'default'}
+              variant={isPro ? 'filled' : 'outlined'}
+              sx={{ fontSize: '0.7rem', height: 22 }}
+            />
+          </Box>
+
+          {currentBoardCount != null && (
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
+                <Typography variant="caption" color="text.secondary">
+                  Boards
+                </Typography>
+                <Typography variant="caption" color="text.secondary" fontWeight={500}>
+                  {isPro
+                    ? `${currentBoardCount} / Unlimited`
+                    : boardLimit
+                      ? `${currentBoardCount} / ${boardLimit}`
+                      : currentBoardCount}
+                </Typography>
+              </Box>
+              {boardLimit && Number.isFinite(boardLimit) && (
+                <LinearProgress
+                  variant="determinate"
+                  value={Math.min(100, Math.round((currentBoardCount / boardLimit) * 100))}
+                  sx={{
+                    height: 6,
+                    borderRadius: 999,
+                    '& .MuiLinearProgress-bar': {
+                      borderRadius: 999
+                    }
+                  }}
+                />
+              )}
+            </Box>
+          )}
+        </Box>
       </Box>
       <Divider sx={{ mb: 3 }} />
 

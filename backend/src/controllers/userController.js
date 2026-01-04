@@ -238,6 +238,17 @@ const resetPassword = async (req, res, next) => {
   }
 }
 
+const getMe = async (req, res, next) => {
+  try {
+    const userId = req.jwtDecoded._id
+    const result = await userService.getMe(userId)
+    res.status(StatusCodes.OK).json(result)
+  }
+  catch (error) {
+    next(error)
+  }
+}
+
 export const userController = {
   createNew,
   verifyAccount,
@@ -251,5 +262,6 @@ export const userController = {
   verify2FA,
   disable2FA,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  getMe
 }

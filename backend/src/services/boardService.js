@@ -160,11 +160,21 @@ const getBoards = async (userId, page, itemsPerPage, querySearchBoard) => {
   }
 }
 
+const countBoardsByOwner = async (userId) => {
+  try {
+    const count = await BoardModel.countBoardsByOwner(userId)
+    return count
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 
 export const boardService = {
   createNew,
   getDetails,
   update,
   moveCardToDiffColumn,
-  getBoards
+  getBoards,
+  countBoardsByOwner
 }

@@ -50,4 +50,7 @@ Router.route('/forgot-password')
 Router.route('/reset-password')
   .post(userValidation.resetPassword, userController.resetPassword)
 
+Router.route('/me')
+  .get(authMiddleware.isAuthorized, userController.getMe)
+
 export const userRoute = Router
