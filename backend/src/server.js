@@ -8,6 +8,7 @@ import exitHook from 'async-exit-hook'
 import { env } from './config/environment'
 import { Router_V1 } from './routes/v1'
 import { errorHandlingMiddleware } from './middlewares/errorHandlingMiddleware'
+import { startExpireSubscriptionJob } from './jobs/subscriptionJob'
 import cookieParser from 'cookie-parser'
 import socketIo from 'socket.io'
 import http from 'http'
@@ -102,6 +103,8 @@ const START_SERVER = () => {
 (async () => {
   try {
     await DB_CONNECT()
+    // Khởi động CRON job tự động hết hạn subscription
+    startExpireSubscriptionJob()
     START_SERVER()
   }
   catch (err) {

@@ -4,6 +4,7 @@ import { boardValidation } from '../../validations/boardValidation'
 import { boardController } from '../../controllers/boardController'
 import { authMiddleware } from '~/middlewares/authMiddleware'
 import { multerUploadMiddleware } from '~/middlewares/multerUploadMiddleware'
+import { canCreateBoard } from '~/middlewares/boardLimitMiddleware'
 
 const Router = express.Router()
 
@@ -11,7 +12,7 @@ const Router = express.Router()
 //v1/boards
 Router.route('/')
   .get(authMiddleware.isAuthorized, boardController.getBoards)
-  .post(authMiddleware.isAuthorized, boardValidation.createNew, boardController.createNew)
+  .post(authMiddleware.isAuthorized, canCreateBoard, boardValidation.createNew, boardController.createNew)
 
 Router.route('/:id')
   .get(authMiddleware.isAuthorized, boardController.getDetails)

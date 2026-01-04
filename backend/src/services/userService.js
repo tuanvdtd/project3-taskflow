@@ -15,6 +15,8 @@ import { authenticator } from 'otplib'
 import qrcode from 'qrcode'
 import { twoFASecretKeyModel } from '~/models/2faSecretKeyModel'
 import { userSessionModel } from '~/models/userSessionModel'
+import { subscriptionModel } from '~/models/subscriptionModel'
+import { boardService } from '~/services/boardService'
 
 const serviceName = '2FA-TaskFlow (MERN)'
 
@@ -519,6 +521,40 @@ const resetPassword = async (email, token, password) => {
   }
 }
 
+// Lấy thông tin user hiện tại kèm plan & limits để FE sync
+const getMe = async (userId) => {
+  try {
+    const user = await userModel.findOneById(userId)
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found!')
+    }
+
+    // Mặc định free
+    let plan = 'free'
+    const activeSubscription = await subscriptionModel.findActiveByUserId(userId)
+    if (activeSubscription && activeSubscription.planCode === subscriptionModel.PLAN_CODE.PRO) {
+      plan = 'pro'
+    }
+
+    // Giới hạn theo plan (đồng bộ với middleware giới hạn board)
+    const PLAN_LIMITS = {
+      free: { maxBoards: 10 },
+      pro: { maxBoards: Infinity }
+    }
+
+    const currentBoardCount = await boardService.countBoardsByOwner(userId.toString())
+
+    return {
+      ...pickUser(user),
+      plan,
+      boardLimit: PLAN_LIMITS[plan]?.maxBoards ?? 10,
+      currentBoardCount
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 export const userService = {
   createNew,
   verifyAccount,
@@ -531,5 +567,6 @@ export const userService = {
   verify2FA,
   // disable2FA
   forgotPassword,
-  resetPassword
+  resetPassword,
+  getMe
 }

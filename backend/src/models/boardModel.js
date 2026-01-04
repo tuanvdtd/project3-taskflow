@@ -302,6 +302,18 @@ const addMemberToBoard = async (boardId, userId) => {
   }
 }
 
+const countBoardsByOwner = async (userId) => {
+  try {
+    const count = await DB_GET().collection(BOARD_COLLECTION_NAME).countDocuments({
+      ownerIds: { $all: [new ObjectId(userId)] },
+      _destroy: false
+    })
+    return count
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const BoardModel = {
   BOARD_COLLECTION_NAME,
   BOARD_COLLECTION_SCHEMA,
@@ -312,6 +324,7 @@ export const BoardModel = {
   update,
   pullColumnIds,
   getBoards,
-  addMemberToBoard
+  addMemberToBoard,
+  countBoardsByOwner
 }
 

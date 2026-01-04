@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { Check, Sparkles, ArrowLeft } from 'lucide-react'
 import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { BillingModal } from './BillingModal'
 
 
@@ -11,7 +14,7 @@ const plans = [
     yearlyPrice: 0,
     description: 'Perfect for individuals or small teams',
     features: [
-      { text: 'Up to 3 boards', included: true },
+      { text: 'Up to 10 boards', included: true },
       { text: 'Basic task management', included: true },
       { text: 'Limited collaborators (up to 5)', included: true },
       { text: 'Basic labels and due dates', included: true },
@@ -23,8 +26,8 @@ const plans = [
   },
   {
     name: 'Pro',
-    monthlyPrice: 300000,
-    yearlyPrice: 250000,
+    monthlyPrice: 100000,
+    yearlyPrice: 80000,
     description: 'Best for growing teams and professionals',
     features: [
       { text: 'Unlimited boards', included: true },
@@ -45,6 +48,9 @@ export function PricingPage({ onBack }) {
   const [billingPeriod, setBillingPeriod] = useState('monthly')
   const [showBillingModal, setShowBillingModal] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(null)
+
+  const currentUser = useSelector(selectCurrentUser)
+  const currentPlanKey = (currentUser?.plan || 'free').toLowerCase()
 
   const handleUpgradeClick = (plan) => {
     if (plan.name === 'Pro') {
@@ -73,6 +79,17 @@ export function PricingPage({ onBack }) {
           <p className="text-slate-600 max-w-2xl mx-auto mb-8">
             Select the perfect plan for your team. Upgrade, downgrade, or cancel anytime.
           </p>
+
+          {/* Current plan indicator */}
+          <div className="flex items-center justify-center mb-6 gap-3 text-sm">
+            <span className="text-slate-600">Current plan:</span>
+            <Chip
+              label={currentPlanKey === 'pro' ? 'Pro' : 'Free'}
+              color={currentPlanKey === 'pro' ? 'primary' : 'default'}
+              variant={currentPlanKey === 'pro' ? 'filled' : 'outlined'}
+              size="small"
+            />
+          </div>
 
           {/* Billing Toggle */}
           <div className="inline-flex items-center gap-4 bg-white rounded-full p-1.5 shadow-sm border border-slate-200">
@@ -106,13 +123,14 @@ export function PricingPage({ onBack }) {
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {plans.map((plan) => {
             const price = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice
+            const isCurrentPlan = plan.name.toLowerCase() === currentPlanKey
 
             return (
               <div
                 key={plan.name}
                 className={`relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 p-8 ${
                   plan.highlight ? 'ring-2 ring-blue-600 md:scale-105' : ''
-                }`}
+                } ${isCurrentPlan ? 'border-2 border-emerald-500' : ''}`}
               >
                 {/* Popular Badge */}
                 {plan.popular && (
@@ -121,6 +139,15 @@ export function PricingPage({ onBack }) {
                       <Sparkles className="w-4 h-4" />
                       Most Popular
                     </div>
+                  </div>
+                )}
+
+                {/* Current plan badge */}
+                {isCurrentPlan && (
+                  <div className="absolute -top-4 right-4">
+                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 shadow-sm">
+                      Current plan
+                    </span>
                   </div>
                 )}
 
@@ -148,11 +175,16 @@ export function PricingPage({ onBack }) {
                 <Button
                   variant={plan.ctaVariant}
                   fullWidth
+                  disabled={isCurrentPlan}
                   sx={{
                     mb: 4,
                     py: 1.5,
                     textTransform: 'none',
                     borderRadius: '12px',
+                    ...(isCurrentPlan && {
+                      opacity: 0.7,
+                      cursor: 'default'
+                    }),
                     ...(plan.ctaVariant === 'contained' && {
                       background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
                       '&:hover': {
@@ -170,10 +202,22 @@ export function PricingPage({ onBack }) {
                       }
                     })
                   }}
-                  onClick={() => handleUpgradeClick(plan)}
+                  onClick={() => {
+                    if (!isCurrentPlan) handleUpgradeClick(plan)
+                  }}
                 >
-                  {plan.ctaText}
+                  {isCurrentPlan
+                    ? plan.name === 'Pro'
+                      ? 'Bạn đang ở gói Pro'
+                      : 'Bạn đang ở gói Free'
+                    : plan.ctaText}
                 </Button>
+
+                {isCurrentPlan && (
+                  <p className="text-xs text-emerald-600 mb-4 text-center">
+                    Đây là gói hiện tại của bạn.
+                  </p>
+                )}
 
                 {/* Features List */}
                 <div className="space-y-3">

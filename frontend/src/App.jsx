@@ -1,11 +1,11 @@
 import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import Board from '~/pages/Boards/_id'
 import NotFound from '~/pages/404/NotFound'
 import Auth from '~/pages/Auth/Auth'
 import AccountVerification from '~/pages/Auth/AccountVerification'
-import { useSelector } from 'react-redux'
-import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useDispatch, useSelector } from 'react-redux'
+import { selectCurrentUser, fetchCurrentUserAPI } from '~/redux/user/userSlice'
 import Settings from '~/pages/Settings/Settings'
 import Boards from '~/pages/Boards/index'
 import Home from '~/pages/Home/Home'
@@ -38,7 +38,7 @@ const titleMap = {
   '/forgot-password': 'Forgot Password | My App',
   '/account/verification': 'Account Verification | My App',
   '/account/reset-password': 'Reset Password | My App',
-  '/pricing': 'Pricing | My App',
+  '/settings/billing': 'Pricing | My App',
   '/vnpay-return': 'Payment | My App',
   '/templates': 'Templates | My App'
 }
@@ -46,6 +46,8 @@ const titleMap = {
 export default function App() {
   const currUser = useSelector(selectCurrentUser)
   const location = useLocation()
+  const dispatch = useDispatch()
+  const hasSyncedMeRef = useRef(false)
 
   useEffect(() => {
     const path = location.pathname
@@ -57,6 +59,15 @@ export default function App() {
 
     document.title = titleMap[path] || 'Page Not Found | My App'
   }, [location.pathname])
+
+  // Đồng bộ thông tin user từ BE sau khi đã có currUser (vd vừa login / load từ persist)
+  // Chỉ gọi 1 lần mỗi session để cập nhật plan/giới hạn board mới nhất
+  useEffect(() => {
+    if (currUser && !hasSyncedMeRef.current) {
+      hasSyncedMeRef.current = true
+      dispatch(fetchCurrentUserAPI())
+    }
+  }, [currUser, dispatch])
 
   return (
     <Routes>

@@ -13,10 +13,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import ErrorIcon from '@mui/icons-material/Error'
 import HomeIcon from '@mui/icons-material/Home'
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong'
+import { useDispatch } from 'react-redux'
+import { fetchCurrentUserAPI } from '~/redux/user/userSlice'
 
 const VNPayReturn = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const [paymentInfo, setPaymentInfo] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -56,8 +59,10 @@ const VNPayReturn = () => {
       }).format(numAmount)
     }
 
+    const isSuccess = vnp_ResponseCode === '00' && vnp_TransactionStatus === '00'
+
     setPaymentInfo({
-      isSuccess: vnp_ResponseCode === '00' && vnp_TransactionStatus === '00',
+      isSuccess,
       responseCode: vnp_ResponseCode,
       amount: formatAmount(vnp_Amount),
       bankCode: vnp_BankCode,
@@ -70,8 +75,13 @@ const VNPayReturn = () => {
       txnRef: vnp_TxnRef
     })
 
+    // Nếu thanh toán thành công, sync lại thông tin user (plan, boardLimit...)
+    if (isSuccess) {
+      dispatch(fetchCurrentUserAPI()).catch(() => {})
+    }
+
     setLoading(false)
-  }, [searchParams])
+  }, [searchParams, dispatch])
 
   const handleGoHome = () => {
     navigate('/boards')
