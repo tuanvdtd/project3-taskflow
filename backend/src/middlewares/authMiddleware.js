@@ -28,6 +28,19 @@ const isAuthorized = async (req, res, next) => {
   }
 }
 
+const isAdmin = async (req, res, next) => {
+  // Middleware này phải chạy sau isAuthorized
+  const userRole = req.jwtDecoded?.role || 'client'
+
+  if (userRole !== 'admin') {
+    next(new ApiError(StatusCodes.FORBIDDEN, 'Forbidden: Admin access required'))
+    return
+  }
+
+  next()
+}
+
 export const authMiddleware = {
-  isAuthorized
+  isAuthorized,
+  isAdmin
 }

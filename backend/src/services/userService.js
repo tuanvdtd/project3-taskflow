@@ -148,7 +148,8 @@ const login = async (resBody, device) => {
     // Thông tin sẽ đính kèm trong JWT Token gồm _id và email của user
     const userInfo = {
       _id: existingUser._id,
-      email: existingUser.email
+      email: existingUser.email,
+      role: existingUser.role || 'client'
     }
 
     // Tạo ra 2 loại token, accessToken và refreshToken để trả về cho fe
@@ -204,7 +205,8 @@ const loginGoogle = async (resBody, device) => {
     if (existingUser) {
       const userInfo = {
         _id: existingUser._id,
-        email: existingUser.email
+        email: existingUser.email,
+        role: existingUser.role || 'client'
       }
 
       const accessToken = await JwtProvider.generateToken(
@@ -257,7 +259,8 @@ const loginGoogle = async (resBody, device) => {
     // Tạo tokens cho user mới
     const userInfo = {
       _id: result._id,
-      email: result.email
+      email: result.email,
+      role: result.role || 'client'
     }
 
     const accessToken = await JwtProvider.generateToken(
@@ -297,7 +300,8 @@ const refreshToken = async (clientRefreshToken) => {
     const refreshTokenDecoded = await JwtProvider.verifyToken(clientRefreshToken, env.REFRESH_TOKEN_SECRET)
     const userInfo = {
       _id: refreshTokenDecoded._id,
-      email: refreshTokenDecoded.email
+      email: refreshTokenDecoded.email,
+      role: refreshTokenDecoded.role || 'client'
     }
 
     // Tạo ra accessToken

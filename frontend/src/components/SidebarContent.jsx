@@ -55,6 +55,14 @@ const SidebarContent = ({
   const boardLimit = currentUser?.boardLimit
   const currentBoardCount = currentUser?.currentBoardCount
 
+  const checkBoardLimit = () => {
+    if (!isPro && boardLimit && currentBoardCount >= boardLimit) {
+      navigate('/settings/billing')
+      return false
+    }
+    return true
+  }
+
   const handleNavigateTemplates = () => {
     navigate('/templates')
   }
@@ -223,6 +231,7 @@ const SidebarContent = ({
             handleCreateBoardSuccess={handleCreateBoardSuccess}
             handleOpen={isCreateModalOpen}
             onClose={onCloseCreateModal}
+            checkBoardLimit={checkBoardLimit}
           />
         </Box>
       </Box>

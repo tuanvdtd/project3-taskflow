@@ -39,7 +39,7 @@ const SidebarItem = styled(Box)(({ theme }) => ({
   }
 }))
 
-function SidebarCreateBoardModal({ handleCreateBoardSuccess, handleOpen, onClose }) {
+function SidebarCreateBoardModal({ handleCreateBoardSuccess, handleOpen, onClose, checkBoardLimit }) {
   const { control, register, handleSubmit, reset, formState: { errors } } = useForm()
   const navigate = useNavigate()
   const theme = useTheme()
@@ -53,7 +53,13 @@ function SidebarCreateBoardModal({ handleCreateBoardSuccess, handleOpen, onClose
     }
   }, [handleOpen])
 
-  const handleOpenModal = () => setIsOpen(true)
+  const handleOpenModal = () => {
+    // Check board limit before opening modal
+    if (checkBoardLimit && !checkBoardLimit()) {
+      return
+    }
+    setIsOpen(true)
+  }
   const handleCloseModal = () => {
     setIsOpen(false)
     onClose?.()

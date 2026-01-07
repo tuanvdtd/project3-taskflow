@@ -26,6 +26,7 @@ function Settings() {
   // Function đơn giản có nhiệm vụ lấy ra cái tab mặc định dựa theo url.
   const getDefaultTab = () => {
     if (location.pathname.includes(TABS.SECURITY)) return TABS.SECURITY
+    if (location.pathname.includes(TABS.BILLING)) return TABS.BILLING
     return TABS.ACCOUNT
   }
   // State lưu trữ giá trị tab nào đang active

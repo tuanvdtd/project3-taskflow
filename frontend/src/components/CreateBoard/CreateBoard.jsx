@@ -33,6 +33,9 @@ import GrainIcon from '@mui/icons-material/Grain'
 import modelList from './modelList'
 import Introduce from './Introduce'
 import DetailForm from './DetailForm'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useNavigate } from 'react-router-dom'
 
 function CreateBoard({ showCreate }) {
   const projectList = [
@@ -49,6 +52,23 @@ function CreateBoard({ showCreate }) {
   const [selectedModel, setSelectedModel] = useState(null)
   const [selectedCategory, setSelectedCategory] = useState(1)
 
+  const navigate = useNavigate()
+  const currentUser = useSelector(selectCurrentUser)
+
+  const plan = currentUser?.plan || 'free'
+  const isPro = plan === 'pro'
+  const boardLimit = currentUser?.boardLimit
+  const currentBoardCount = currentUser?.currentBoardCount
+
+  const checkBoardLimit = () => {
+    if (!isPro && boardLimit && currentBoardCount >= boardLimit) {
+      navigate('/settings/billing')
+      showCreate() // Close modal
+      return false
+    }
+    return true
+  }
+
   const handleShowModel = () => {
     setShowModel(true)
     setShowIntro(false)
@@ -63,6 +83,10 @@ function CreateBoard({ showCreate }) {
   }
 
   const handleShowForm = () => {
+    // Check board limit before showing form
+    if (!checkBoardLimit()) {
+      return
+    }
     setShowForm(true)
     setShowIntro(false)
     setShowModel(false)

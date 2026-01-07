@@ -55,7 +55,12 @@ function LoginForm() {
       { pending: 'Logging in...' }
     ).then((res) => {
       if (!res.error) {
-        navigate('/boards', { replace: true })
+        if (res.payload.role === 'admin') {
+          navigate('/admin', { replace: true })
+        }
+        else {
+          navigate('/boards', { replace: true })
+        }
       }
     })
   }
