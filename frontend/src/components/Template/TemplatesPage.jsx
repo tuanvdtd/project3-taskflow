@@ -9,6 +9,9 @@ import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import CreateBoard from '~/components/CreateBoard/CreateBoard'
+import { useSelector } from 'react-redux'
+import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useNavigate } from 'react-router-dom'
 
 
 const templates = [
@@ -160,6 +163,22 @@ export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showCreateBoardModal, setShowCreateBoardModal] = useState(false)
 
+  const currentUser = useSelector(selectCurrentUser)
+  const navigate = useNavigate()
+
+  const plan = currentUser?.plan || 'free'
+  const isPro = plan === 'pro'
+  const boardLimit = currentUser?.boardLimit
+  const currentBoardCount = currentUser?.currentBoardCount
+
+  const checkBoardLimit = () => {
+    if (!isPro && boardLimit && currentBoardCount >= boardLimit) {
+      navigate('/settings/billing')
+      return false
+    }
+    return true
+  }
+
   // Filter templates
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -171,6 +190,10 @@ export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
   const featuredTemplates = templates.filter(t => t.featured)
 
   const handleUseTemplate = (template) => {
+    // Check board limit before opening dialog
+    if (!checkBoardLimit()) {
+      return
+    }
     setSelectedTemplate(template)
     setBoardName(template.name)
     setShowCreateDialog(true)

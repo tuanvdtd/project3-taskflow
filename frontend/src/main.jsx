@@ -15,6 +15,8 @@ import { PersistGate } from 'redux-persist/integration/react'
 import { persistStore } from 'redux-persist'
 import { injectStore } from '~/utils/authorizeAxios'
 import { Auth0Provider } from '@auth0/auth0-react'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '~/customLib/queryClient'
 
 // persistor is used to persist the Redux store across page reload
 let persistor = persistStore(store)
@@ -58,7 +60,9 @@ root.render(
               // useRefreshTokensFallback={true}
               // cookieDomain='.dtt.local'
             >
-              <App />
+              <QueryClientProvider client={queryClient}>
+                <App />
+              </QueryClientProvider>
             </Auth0Provider>
             <ToastContainer theme="colored" />
           </ConfirmProvider>

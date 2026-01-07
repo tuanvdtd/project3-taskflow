@@ -9,7 +9,7 @@ import CardContent from '@mui/material/CardContent'
 import CardMedia from '@mui/material/CardMedia'
 import Pagination from '@mui/material/Pagination'
 import PaginationItem from '@mui/material/PaginationItem'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { fetchBoardsAPI } from '~/apis'
 import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_PAGE } from '~/utils/constants'
 import BoardsListSkeleton from '~/components/Skeleton/BoardsListSkeleton'
@@ -20,6 +20,7 @@ import { selectCurrentUser } from '~/redux/user/userSlice'
 import { Clock } from 'lucide-react'
 import AutoCompleteSearchBoard from '~/components/AppBar/SearchBoards/AutoCompleteSearchBoard'
 import MainLayout from '~/layouts/MainLayout'
+import { formatDistanceToNow } from 'date-fns'
 function Boards() {
 
   // Số lượng bản ghi boards hiển thị tối đa trên 1 page tùy dự án (thường sẽ là 12 cái)
@@ -31,6 +32,14 @@ function Boards() {
   const [isLearnMoreOpen, setIsLearnMoreOpen] = useState(false)
 
   const [isLoading, setIsLoading] = useState(false)
+
+  const navigate = useNavigate()
+  const currentUser = useSelector(selectCurrentUser)
+
+  const plan = currentUser?.plan || 'free'
+  const isPro = plan === 'pro'
+  const boardLimit = currentUser?.boardLimit
+  const currentBoardCount = currentUser?.currentBoardCount
 
   // Xử lý phân trang từ url với MUI: https://mui.com/material-ui/react-pagination/#router-integration
   const location = useLocation()
@@ -76,6 +85,11 @@ function Boards() {
 
 
   const handleCreateBoard = () => {
+    // Check board limit before opening create modal
+    if (!isPro && boardLimit && currentBoardCount >= boardLimit) {
+      navigate('/settings/billing')
+      return
+    }
     setIsCreateModalOpen(true)
     setIsLearnMoreOpen(false)
   }
@@ -235,15 +249,9 @@ function Boards() {
                           )}
                         </div>
                         <div className="flex items-center gap-1 text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
-                          {/* Original dynamic time display (commented out for temporary hardcode)
                           <Clock className="w-3 h-3" />
-                          <span className="hidden sm:inline">{formatDistanceToNow(createdDate, { addSuffix: true })}</span>
-                          <span className="sm:hidden">{formatDistanceToNow(createdDate, { addSuffix: true }).replace('about ', '')}</span>
-                          */}
-                          {/* Temporary hardcoded time */}
-                          <Clock className="w-3 h-3" />
-                          <span className="hidden sm:inline">2 days ago</span>
-                          <span className="sm:hidden">2d</span>
+                          <span className="hidden sm:inline">{formatDistanceToNow(new Date(b.createdAt), { addSuffix: true })}</span>
+                          <span className="sm:hidden">{formatDistanceToNow(new Date(b.createdAt), { addSuffix: true }).replace('about ', '')}</span>
                         </div>
                       </div>
                     )}

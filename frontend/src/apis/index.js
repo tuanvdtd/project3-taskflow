@@ -144,3 +144,48 @@ export const deleteAttachmentAPI = async (attachmentId) => {
   const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/attachments/${attachmentId}`)
   return response.data
 }
+
+//----------------Admin API----------------------------------
+
+// Dashboard Overview
+export const getDashboardStatsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/stats`)
+  return response.data
+}
+
+export const getUserGrowthAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/user-growth`)
+  return response.data
+}
+
+export const getSubscriptionDistributionAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/subscription-distribution`)
+  return response.data
+}
+
+export const getRevenueAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/revenue`)
+  return response.data
+}
+
+// Users Management
+export const getAdminUsersAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/users`)
+  return response.data
+}
+
+export const updateUserStatusAPI = async (userId, status) => {
+  const response = await authorizedAxiosInstance.patch(`${API_ROOT}/v1/admin/users/${userId}/status`, { status })
+  return response.data
+}
+
+export const deleteUserAPI = async (userId) => {
+  const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/admin/users/${userId}`)
+  return response.data
+}
+
+// Payments & Billing
+export const getAdminPaymentsAPI = async () => {
+  const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/admin/payments`)
+  return response.data
+}
