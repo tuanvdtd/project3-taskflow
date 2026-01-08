@@ -8,8 +8,24 @@ const createNew = async (req, res, next) => {
   const boardSchema = Joi.object({
     title: Joi.string().required().min(3).max(50).trim().strict(),
     description: Joi.string().required().min(3).max(250).trim().strict(),
-    type: Joi.string().valid(BOARD_TYPE.PUBLIC, BOARD_TYPE.PRIVATE).required()
-    // template: Joi.string().valid('Kanban', 'Scrum', 'Extreme', 'Custom').optional() // Chỉ cho phép các template có sẵn
+    type: Joi.string().valid(BOARD_TYPE.PUBLIC, BOARD_TYPE.PRIVATE).required(),
+    templateId: Joi.string().valid(
+      'kanban-board',
+      'sprint-planning',
+      'personal-task-manager',
+      'marketing-campaign',
+      'design-workflow',
+      'product-roadmap',
+      'content-calendar',
+      'homework-planner',
+      'project-management',
+      'event-planning',
+      'bug-tracking',
+      'goal-setting',
+      'Kanban',
+      'Scrum',
+      'Extreme'
+    ).optional() // Template là optional, nếu không có sẽ tạo board mặc định
   })
   try {
     await boardSchema.validateAsync(req.body, { abortEarly: false, allowUnknown: true })

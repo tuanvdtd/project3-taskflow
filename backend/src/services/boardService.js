@@ -19,9 +19,37 @@ const createNew = async (userId, resBody) => {
     }
     const createNew = await BoardModel.createNew(userId, newBoard)
     const boardId = createNew.insertedId.toString()
-    // Tạo các column từ template (nếu có)
-    if (resBody.template && BOARD_TEMPLATES[resBody.template]) {
-      await createColumnsFromTemplate(boardId, BOARD_TEMPLATES[resBody.template])
+
+    // Tạo các column từ template (nếu có templateId)
+    if (resBody.templateId && BOARD_TEMPLATES[resBody.templateId]) {
+      await createColumnsFromTemplate(boardId, BOARD_TEMPLATES[resBody.templateId])
+    } else {
+      // Tạo column mặc định "To Do" với card "Welcome to your new board!"
+      const newColumn = await columnModel.createNew({
+        boardId: boardId,
+        title: 'To Do'
+      })
+      const columnId = newColumn.insertedId.toString()
+
+      // Push column vào board
+      await BoardModel.pushColumnIds({
+        _id: columnId,
+        boardId: boardId
+      })
+
+      // Tạo card mặc định
+      const newCard = await cardModel.createNew({
+        boardId: boardId,
+        columnId: columnId,
+        title: 'Welcome to your new board!'
+      })
+      const cardId = newCard.insertedId
+
+      // Push card vào column
+      await columnModel.pushCardIds({
+        _id: cardId,
+        columnId: columnId
+      })
     }
     const result = await BoardModel.getBoardById(boardId)
     return result
@@ -79,7 +107,7 @@ const getDetails = async (userId, boardId) => {
 
     delete boardClone.cards
     delete boardClone.comments
-  delete boardClone.attachments
+    delete boardClone.attachments
 
     return boardClone
   } catch (error) {
@@ -169,6 +197,19 @@ const countBoardsByOwner = async (userId) => {
   }
 }
 
+const getTemplates = async () => {
+  try {
+    // Chuyển đổi object BOARD_TEMPLATES thành array để dễ sử dụng ở frontend
+    const templatesArray = Object.keys(BOARD_TEMPLATES).map(key => ({
+      id: key,
+      ...BOARD_TEMPLATES[key]
+    }))
+    return templatesArray
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 
 export const boardService = {
   createNew,
@@ -176,5 +217,6 @@ export const boardService = {
   update,
   moveCardToDiffColumn,
   getBoards,
-  countBoardsByOwner
+  countBoardsByOwner,
+  getTemplates
 }

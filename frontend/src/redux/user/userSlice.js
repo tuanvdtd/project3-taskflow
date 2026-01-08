@@ -75,6 +75,12 @@ export const userSlice = createSlice({
       // Xử lí dữ liệu
       // ...
       state.currentUser = user
+    },
+    incrementBoardCount: (state) => {
+      // Tăng currentBoardCount lên 1 sau khi tạo board thành công
+      if (state.currentUser && state.currentUser.currentBoardCount !== undefined) {
+        state.currentUser.currentBoardCount += 1
+      }
     }
   },
   // extraReducers là nơi xử lí dữ liệu bất đồng bộ
@@ -105,7 +111,7 @@ export const userSlice = createSlice({
 
 // Actions: là nơi dành cho các component bên dưới gọi bằng dispatch() tới nó để cập nhật dữ liệu thông qua reducer chạy đồng bộ
 // actions là các hàm được tạo ra từ reducers bên trên, mỗi hàm tương ứng với một action
-export const { updateCurrentUser } = userSlice.actions
+export const { updateCurrentUser, incrementBoardCount } = userSlice.actions
 
 //Selectors: là nơi dành cho các component bên dưới gọi bằng hook userSelector để lấy dữ liệu từ state (trong kho Redux Store) về
 export const selectCurrentUser = (state) => {

@@ -62,11 +62,21 @@ const getBoards = async (req, res, next) => {
   }
 }
 
+const getTemplates = async (req, res, next) => {
+  try {
+    const templates = await boardService.getTemplates()
+    res.status(StatusCodes.OK).json(templates)
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 export const boardController = {
   createNew,
   getDetails,
   update,
   moveCardToDiffColumn,
-  getBoards
+  getBoards,
+  getTemplates
 }

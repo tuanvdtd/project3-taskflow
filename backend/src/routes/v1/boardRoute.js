@@ -14,6 +14,9 @@ Router.route('/')
   .get(authMiddleware.isAuthorized, boardController.getBoards)
   .post(authMiddleware.isAuthorized, canCreateBoard, boardValidation.createNew, boardController.createNew)
 
+Router.route('/templates')
+  .get(boardController.getTemplates)
+
 Router.route('/:id')
   .get(authMiddleware.isAuthorized, boardController.getDetails)
   .put(authMiddleware.isAuthorized, multerUploadMiddleware.upload.single('backgroundBoard'), boardValidation.update, boardController.update)

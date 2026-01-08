@@ -21,6 +21,8 @@ import { BOARD_TYPES } from '~/utils/constants'
 import { useNavigate } from 'react-router-dom'
 import { styled, useTheme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import { useDispatch } from 'react-redux'
+import { incrementBoardCount } from '~/redux/user/userSlice'
 
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -41,6 +43,7 @@ const SidebarItem = styled(Box)(({ theme }) => ({
 
 function SidebarCreateBoardModal({ handleCreateBoardSuccess, handleOpen, onClose, checkBoardLimit }) {
   const { control, register, handleSubmit, reset, formState: { errors } } = useForm()
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -76,6 +79,8 @@ function SidebarCreateBoardModal({ handleCreateBoardSuccess, handleOpen, onClose
       if (handleCreateBoardSuccess) {
         handleCreateBoardSuccess()
       }
+      // Tăng currentBoardCount lên 1 trong Redux
+      dispatch(incrementBoardCount())
       // Navigate to the newly created board
       navigate(`/boards/${board._id}`, { state: { isNewBoard: true } })
     } catch (error) {
