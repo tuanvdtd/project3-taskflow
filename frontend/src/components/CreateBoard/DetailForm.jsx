@@ -20,9 +20,12 @@ import PublicIcon from '@mui/icons-material/Public'
 import LockIcon from '@mui/icons-material/Lock'
 import { useForm, Controller } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { incrementBoardCount } from '~/redux/user/userSlice'
 
 
 const DetailForm = ({ template, backtoShowModel, handleCloseModal }) => {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const { control, register, handleSubmit, watch, formState: { errors } } = useForm({
     defaultValues: {
@@ -43,8 +46,10 @@ const DetailForm = ({ template, backtoShowModel, handleCloseModal }) => {
     // console.log('model: ', template.name)
 
     try {
-      const newBoard = await createNewBoardAPI({ title, description, type, template: template.name })
+      const newBoard = await createNewBoardAPI({ title, description, type, templateId: template.name })
       handleCloseModal()
+      // Tăng currentBoardCount lên 1 trong Redux
+      dispatch(incrementBoardCount())
       navigate(`/boards/${newBoard._id}`, {
         state: { isNewBoard: true }
       })
@@ -286,6 +291,7 @@ const DetailForm = ({ template, backtoShowModel, handleCloseModal }) => {
                     background: 'linear-gradient(45deg, #1976D2 30%, #7B1FA2 90%)'
                   }
                 }}
+                className='interceptor-loading'
               >
                 Create
               </Button>

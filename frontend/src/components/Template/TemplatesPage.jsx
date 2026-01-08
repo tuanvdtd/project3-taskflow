@@ -9,14 +9,16 @@ import DialogActions from '@mui/material/DialogActions'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import CreateBoard from '~/components/CreateBoard/CreateBoard'
-import { useSelector } from 'react-redux'
-import { selectCurrentUser } from '~/redux/user/userSlice'
+import { useSelector, useDispatch } from 'react-redux'
+import { selectCurrentUser, incrementBoardCount } from '~/redux/user/userSlice'
 import { useNavigate } from 'react-router-dom'
+import { createNewBoardAPI } from '~/apis'
+import { BOARD_TYPES } from '~/utils/constants'
 
 
 const templates = [
   {
-    id: '1',
+    id: 'kanban-board',
     name: 'Kanban Board',
     description: 'Classic Kanban workflow for visualizing and managing work in progress.',
     category: 'Work',
@@ -28,7 +30,7 @@ const templates = [
     popular: true
   },
   {
-    id: '2',
+    id: 'sprint-planning',
     name: 'Sprint Planning',
     description: 'Agile sprint board to plan and track development sprints effectively.',
     category: 'Software',
@@ -39,7 +41,7 @@ const templates = [
     popular: true
   },
   {
-    id: '3',
+    id: 'personal-task-manager',
     name: 'Personal Task Manager',
     description: 'Simple and effective personal productivity system to organize your life.',
     category: 'Personal',
@@ -50,7 +52,7 @@ const templates = [
     featured: true
   },
   {
-    id: '4',
+    id: 'marketing-campaign',
     name: 'Marketing Campaign',
     description: 'Plan, execute, and track marketing campaigns from idea to launch.',
     category: 'Marketing',
@@ -61,7 +63,7 @@ const templates = [
     isNew: true
   },
   {
-    id: '5',
+    id: 'design-workflow',
     name: 'Design Workflow',
     description: 'Streamlined design process from brief to final delivery.',
     category: 'Design',
@@ -72,7 +74,7 @@ const templates = [
     popular: true
   },
   {
-    id: '6',
+    id: 'product-roadmap',
     name: 'Product Roadmap',
     description: 'Plan and visualize your product development roadmap and features.',
     category: 'Software',
@@ -83,7 +85,7 @@ const templates = [
     featured: true
   },
   {
-    id: '7',
+    id: 'content-calendar',
     name: 'Content Calendar',
     description: 'Organize and schedule content creation and publication.',
     category: 'Marketing',
@@ -93,7 +95,7 @@ const templates = [
     color: '#14b8a6'
   },
   {
-    id: '8',
+    id: 'homework-planner',
     name: 'Homework Planner',
     description: 'Keep track of assignments, projects, and study schedules.',
     category: 'Education',
@@ -104,7 +106,7 @@ const templates = [
     isNew: true
   },
   {
-    id: '9',
+    id: 'project-management',
     name: 'Project Management',
     description: 'Complete project management workflow for complex initiatives.',
     category: 'Work',
@@ -114,7 +116,7 @@ const templates = [
     color: '#0ea5e9'
   },
   {
-    id: '10',
+    id: 'event-planning',
     name: 'Event Planning',
     description: 'Organize all aspects of event planning from concept to execution.',
     category: 'Work',
@@ -124,7 +126,7 @@ const templates = [
     color: '#a855f7'
   },
   {
-    id: '11',
+    id: 'bug-tracking',
     name: 'Bug Tracking',
     description: 'Track and manage software bugs and issues efficiently.',
     category: 'Software',
@@ -134,7 +136,7 @@ const templates = [
     color: '#ef4444'
   },
   {
-    id: '12',
+    id: 'goal-setting',
     name: 'Goal Setting',
     description: 'Set, track, and achieve your personal or team goals.',
     category: 'Personal',
@@ -155,7 +157,7 @@ const categories = [
   { value: 'Design', label: 'Design', icon: Palette }
 ]
 
-export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
+export function TemplatesPage({ darkMode = false }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedTemplate, setSelectedTemplate] = useState(null)
@@ -164,6 +166,7 @@ export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
   const [showCreateBoardModal, setShowCreateBoardModal] = useState(false)
 
   const currentUser = useSelector(selectCurrentUser)
+  const dispatch = useDispatch()
   const navigate = useNavigate()
 
   const plan = currentUser?.plan || 'free'
@@ -199,12 +202,32 @@ export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
     setShowCreateDialog(true)
   }
 
-  const handleCreateBoard = () => {
-    if (selectedTemplate && boardName.trim() && onCreateFromTemplate) {
-      onCreateFromTemplate(selectedTemplate, boardName)
-      setShowCreateDialog(false)
-      setBoardName('')
-      setSelectedTemplate(null)
+  const handleCreateBoard = async () => {
+    if (selectedTemplate && boardName.trim()) {
+      try {
+        // Gọi API để tạo board với template
+        const newBoard = await createNewBoardAPI({
+          title: boardName,
+          description: selectedTemplate.description,
+          type: BOARD_TYPES.PUBLIC,
+          templateId: selectedTemplate.id
+        })
+
+        // Đóng dialog và reset state
+        setShowCreateDialog(false)
+        setBoardName('')
+        setSelectedTemplate(null)
+
+        // Tăng currentBoardCount lên 1 trong Redux
+        dispatch(incrementBoardCount())
+
+        // Navigate đến board mới tạo
+        navigate(`/boards/${newBoard._id}`, {
+          state: { isNewBoard: true }
+        })
+      } catch (error) {
+        console.error('Failed to create board from template:', error)
+      }
     }
   }
 
@@ -238,6 +261,7 @@ export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
                 whiteSpace: 'nowrap',
                 ml: 2
               }}
+              className = 'interceptor-loading'
             >
               Create from Scratch
             </Button>
@@ -408,6 +432,7 @@ export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
               color: darkMode ? '#9ca3af' : '#64748b',
               textTransform: 'none'
             }}
+            className='interceptor-loading'
           >
             Cancel
           </Button>
@@ -426,6 +451,7 @@ export function TemplatesPage({ onCreateFromTemplate, darkMode = false }) {
                 color: darkMode ? '#6b7280' : '#94a3b8'
               }
             }}
+            className='interceptor-loading'
           >
             Create Board
           </Button>
