@@ -25,8 +25,9 @@ const ACTIVE_DRAG_ITEM_TYPE = {
   CARD: 'CARD'
 }
 
-function BoardContent({ board, moveColumnDnd, moveCardInSameColumnDnd, moveCardToDiffColumnDnd }) {
+function BoardContent({ board, moveColumnDnd, moveCardInSameColumnDnd, moveCardToDiffColumnDnd, filterKeyword, onFilteredCountChange }) {
   const [orderedColumnsState, setOrderedColumnsState] = useState([])
+  const [filteredColumnsState, setFilteredColumnsState] = useState([])
   const [isDragging, setIsDragging] = useState(false)
   useDragCursor(isDragging)
 
@@ -61,6 +62,73 @@ function BoardContent({ board, moveColumnDnd, moveCardInSameColumnDnd, moveCardT
     const orderedColumns = board?.columns
     setOrderedColumnsState(orderedColumns)
   }, [board])
+
+  // Effect to filter cards based on keyword
+  useEffect(() => {
+    if (!orderedColumnsState) {
+      setFilteredColumnsState([])
+      return
+    }
+
+    if (!filterKeyword || filterKeyword.trim() === '') {
+      // No filter, show all cards
+      setFilteredColumnsState(orderedColumnsState)
+      if (onFilteredCountChange) {
+        onFilteredCountChange(0)
+      }
+      return
+    }
+
+    const keyword = filterKeyword.toLowerCase().trim()
+    let totalFilteredCards = 0
+
+    // Filter cards in each column
+    const filtered = orderedColumnsState.map(column => {
+      const filteredCards = column.cards.filter(card => {
+        // Search in card title
+        if (card.title?.toLowerCase().includes(keyword)) return true
+
+        // Search in card description
+        if (card.description?.toLowerCase().includes(keyword)) return true
+
+        // Search in member names
+        if (card.members?.some(member =>
+          member.displayName?.toLowerCase().includes(keyword) ||
+          member.username?.toLowerCase().includes(keyword) ||
+          member.email?.toLowerCase().includes(keyword)
+        )) return true
+
+        // Search in labels
+        if (card.labels?.some(label =>
+          label.name?.toLowerCase().includes(keyword) ||
+          label.color?.toLowerCase().includes(keyword)
+        )) return true
+
+        // Search in comments
+        if (card.comments?.some(comment =>
+          comment.content?.toLowerCase().includes(keyword) ||
+          comment.userAvatar?.toLowerCase().includes(keyword)
+        )) return true
+
+        return false
+      })
+
+      // Return column with filtered cards
+      totalFilteredCards += filteredCards.length
+      return {
+        ...column,
+        cards: filteredCards.length > 0 ? filteredCards : [generatePlaceholderCard(column)],
+        cardOrderIds: filteredCards.length > 0
+          ? filteredCards.map(card => card._id)
+          : [generatePlaceholderCard(column)._id]
+      }
+    })
+
+    setFilteredColumnsState(filtered)
+    if (onFilteredCountChange) {
+      onFilteredCountChange(totalFilteredCards)
+    }
+  }, [orderedColumnsState, filterKeyword, onFilteredCountChange])
 
 
   const handleDragStart = (event) => {
@@ -310,7 +378,7 @@ function BoardContent({ board, moveColumnDnd, moveCardInSameColumnDnd, moveCardT
             p: '10px 0'
           }}
         >
-          <ListColumn columns={orderedColumnsState} />
+          <ListColumn columns={filterKeyword ? filteredColumnsState : orderedColumnsState} />
           <DragOverlay dropAnimation={dropAnimation}>
             {!activeDragItemType && null}
             {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN && (

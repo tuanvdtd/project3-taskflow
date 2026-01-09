@@ -34,6 +34,8 @@ function Board() {
   // const [board, setBoard] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
   const [viewMode, setViewMode] = useState('board')
+  const [filterKeyword, setFilterKeyword] = useState('')
+  const [filteredCardsCount, setFilteredCardsCount] = useState(0)
   const dispatch = useDispatch()
   const board = useSelector(selectCurrentActiveBoard)
   // Bắt buộc phải lấy đúng tên boardId từ URL params để gọi API
@@ -181,13 +183,22 @@ function Board() {
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed' }}>
-          <BoardBar board={board} viewMode={viewMode} onChangeViewMode={setViewMode} />
+          <BoardBar
+            board={board}
+            viewMode={viewMode}
+            onChangeViewMode={setViewMode}
+            onFilterChange={setFilterKeyword}
+            filterKeyword={filterKeyword}
+            filteredCardsCount={filteredCardsCount}
+          />
           {viewMode === 'board' && (
             <BoardContent
               board={board}
               moveColumnDnd={moveColumnDnd}
               moveCardInSameColumnDnd={moveCardInSameColumnDnd}
               moveCardToDiffColumnDnd={moveCardToDiffColumnDnd}
+              filterKeyword={filterKeyword}
+              onFilteredCountChange={setFilteredCardsCount}
             />
           )}
           {viewMode === 'calendar' && (

@@ -32,6 +32,7 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
 
   createdAt: Joi.date().timestamp('javascript').default(Date.now),
   dueDate: Joi.date().timestamp('javascript').optional().allow(null),
+  completed: Joi.boolean().default(false),
   updatedAt: Joi.date().timestamp('javascript').default(null),
   _destroy: Joi.boolean().default(false)
 })

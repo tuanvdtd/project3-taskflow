@@ -1,5 +1,6 @@
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
+import Typography from '@mui/material/Typography'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import BoltIcon from '@mui/icons-material/Bolt'
 import FilterListIcon from '@mui/icons-material/FilterList'
@@ -18,6 +19,7 @@ import { updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { cloneDeep } from 'lodash'
 import { LayoutDashboard, Calendar as CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
+import FilterModal from './FilterModal'
 
 const MenuStyle = {
   color: 'white',
@@ -36,9 +38,14 @@ const MenuStyle = {
 }
 
 
-function BoardBar({ board, viewMode, onChangeViewMode }) {
+function BoardBar({ board, viewMode, onChangeViewMode, onFilterChange, filterKeyword, filteredCardsCount = 0 }) {
   const [modalOpen, setModalOpen] = useState(false)
+  const [filterModalOpen, setFilterModalOpen] = useState(false)
   const dispatch = useDispatch()
+
+  const handleClearFilter = () => {
+    onFilterChange('')
+  }
 
   const updateBoardTitle = async (newTitle) => {
     // console.log('New board title: ', newTitle)
@@ -173,12 +180,60 @@ function BoardBar({ board, viewMode, onChangeViewMode }) {
             // onSelect={handleBackgroundSelect}
             boardId={board?._id}
           />
-          <Chip
-            icon={<FilterListIcon />}
-            label="Filter"
-            clickable
-            sx={MenuStyle}
-          />
+          {!filterKeyword ? (
+            <Chip
+              icon={<FilterListIcon />}
+              label="Filter"
+              clickable
+              sx={MenuStyle}
+              onClick={() => setFilterModalOpen(true)}
+            />
+          ) : (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                borderRadius: '20px',
+                px: 1.5,
+                py: 0.5,
+                cursor: 'pointer',
+                '&:hover': {
+                  bgcolor: 'rgba(255, 255, 255, 0.3)'
+                }
+              }}
+              onClick={() => setFilterModalOpen(true)}
+            >
+              <FilterListIcon sx={{ color: 'white', fontSize: '18px' }} />
+              <Box
+                sx={{
+                  minWidth: '20px',
+                  height: '20px',
+                  borderRadius: '10px',
+                  bgcolor: '#0c66e4',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  px: 0.5
+                }}
+              >
+                {filteredCardsCount}
+              </Box>
+              <Typography
+                sx={{ color: 'white', fontSize: '14px', fontWeight: 500 }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleClearFilter()
+                }}
+              >
+                Clear all
+              </Typography>
+            </Box>
+          )}
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
           {/* <Button
@@ -199,6 +254,30 @@ function BoardBar({ board, viewMode, onChangeViewMode }) {
 
         </Box>
       </Box>
+
+      {/* Filter Modal */}
+      <FilterModal
+        open={filterModalOpen}
+        onClose={() => setFilterModalOpen(false)}
+        onFilterChange={onFilterChange}
+        initialKeyword={filterKeyword}
+      />
+
+      {/* Clear Filter Overlay */}
+      {filterKeyword && (
+        <Box
+          onClick={handleClearFilter}
+          sx={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: -1,
+            display: 'none'
+          }}
+        />
+      )}
     </>
   )
 }
