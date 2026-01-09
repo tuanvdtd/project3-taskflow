@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 // import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -10,12 +10,14 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { updateCurrentActiveCard, showActiveCardModal } from '~/redux/activeCard/activeCardSlice'
 import { useDispatch, useSelector } from 'react-redux'
-import { selectCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
-import { MessageSquare, Paperclip, Users, Calendar, AlertCircle, Clock } from 'lucide-react'
+import { selectCurrentActiveBoard, updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { MessageSquare, Paperclip, Users, Calendar, AlertCircle, Clock, Check } from 'lucide-react'
 import { differenceInDays, differenceInHours, isPast, isToday, isTomorrow } from 'date-fns'
 import { useColorScheme } from '@mui/material/styles'
+import { updateCardDetailsAPI } from '~/apis'
 
 function TaskFlowCard({ card }) {
+  const [isHovered, setIsHovered] = useState(false)
   const { mode: darkMode } = useColorScheme()
   const dispatch = useDispatch()
   const {
@@ -51,6 +53,22 @@ function TaskFlowCard({ card }) {
     return boardMembers.find(user => user._id === memberId)
   })
 
+  const handleToggleComplete = async (e) => {
+    e.stopPropagation()
+    const newCompletedStatus = !card.completed
+
+    // Cập nhật UI ngay lập tức
+    dispatch(updateCardInBoard({ ...card, completed: newCompletedStatus }))
+
+    try {
+      await updateCardDetailsAPI(card._id, { completed: newCompletedStatus })
+    } catch (error) {
+      console.error('Error toggling card completion:', error)
+      // Rollback nếu API fail
+      dispatch(updateCardInBoard({ ...card, completed: !newCompletedStatus }))
+    }
+  }
+
   // const priorityColors = {
   //   low: darkMode ? 'bg-green-900/50 text-green-300' : 'bg-green-100 text-green-700',
   //   medium: darkMode ? 'bg-yellow-900/50 text-yellow-300' : 'bg-yellow-100 text-yellow-700',
@@ -62,6 +80,15 @@ function TaskFlowCard({ card }) {
 
     const due = new Date(card.dueDate)
     const now = new Date()
+
+    // Nếu card đã completed, hiển thị màu xanh
+    if (card.completed) {
+      return {
+        label: 'Completed',
+        color: darkMode ? 'bg-green-900/70 text-green-200' : 'bg-green-100 text-green-800',
+        icon: false
+      }
+    }
 
     if (isPast(due) && !isToday(due)) {
       const daysOverdue = differenceInDays(now, due)
@@ -102,7 +129,7 @@ function TaskFlowCard({ card }) {
   }
 
   const dueStatus = getDueStatus()
-  const isOverdue = card.dueDate && isPast((card.dueDate)) && !isToday((card.dueDate))
+  const isOverdue = !card.completed && card.dueDate && isPast((card.dueDate)) && !isToday((card.dueDate))
   // console.log(
   //   {dueStatus, isOverdue}
   // )
@@ -116,6 +143,8 @@ function TaskFlowCard({ card }) {
           // Mở modal hiển thị chi tiết card
           dispatch(showActiveCardModal())
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         ref={setNodeRef}
         style={styleDnDCard}
         {...attributes}
@@ -130,15 +159,47 @@ function TaskFlowCard({ card }) {
           // display: card?.isPlaceHolderCard ? "none" : "block",
           height: card?.isPlaceHolderCard ? '0px' : 'unset',
           // border: "1px solid transparent",
-          border: card?.isPlaceHolderCard ? 'unset' : isOverdue ? '2px solid red' : '1px solid transparent',
+          border: card?.isPlaceHolderCard
+            ? 'unset'
+            : card.completed
+              ? '2px solid #22c55e'
+              : isOverdue
+                ? '2px solid red'
+                : '1px solid transparent',
+          position: 'relative',
+          opacity: card.completed ? 0.75 : 1,
           '&:hover': {
-            borderColor: (theme) => theme.palette.primary.main
+            borderColor: (theme) => card.completed ? '#22c55e' : theme.palette.primary.main
           }
         }}
       >
+        {/* Checkbox với animation */}
+        <div
+          className="absolute top-2 right-2 z-10 transition-all duration-300 ease-in-out"
+          style={{
+            opacity: isHovered || card.completed ? 1 : 0,
+            transform: isHovered || card.completed ? 'scale(1)' : 'scale(0.5)',
+            pointerEvents: isHovered || card.completed ? 'auto' : 'none'
+          }}
+          onClick={handleToggleComplete}
+        >
+          <div
+            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center cursor-pointer transition-all duration-200 shadow-sm ${
+              card.completed
+                ? 'bg-white border-black'
+                : 'bg-white border-gray-400 hover:border-green-500 hover:bg-green-50'
+            }`}
+          >
+            {card.completed && (
+              <Check className="w-4 h-4 text-green-500" strokeWidth={3} />
+            )}
+          </div>
+        </div>
         {card?.cover && <CardMedia sx={{ height: 140, borderRadius: '4px 4px 0 0', objectFit: 'cover' }} image={card?.cover} />}
         <CardContent sx={{ p: 1.5, '&:last-child': { p: 1.5 } }}>
-          <Typography>{card?.title}</Typography>
+          <Typography>
+            {card?.title}
+          </Typography>
           {(card?.startDate || card?.dueDate) && (
             <div className={`flex items-center justify-between text-xs mt-2 ${
               isOverdue ? 'text-red-500' : (darkMode ? 'text-gray-400' : 'text-gray-500')

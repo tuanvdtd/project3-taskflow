@@ -46,9 +46,10 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import Popover from '@mui/material/Popover'
 import moment from 'moment'
 import { MobileDatePicker } from '@mui/x-date-pickers/MobileDatePicker'
-import { Paperclip, FileText, ExternalLink, Trash2 } from 'lucide-react'
+import { Paperclip, FileText, ExternalLink, Trash2, Check } from 'lucide-react'
 import { motion, AnimatePresence } from 'motion/react'
 import IconButton from '@mui/material/IconButton'
+import Chip from '@mui/material/Chip'
 
 import { styled } from '@mui/material/styles'
 import { cloneDeep } from 'lodash'
@@ -282,6 +283,10 @@ function ActiveCard() {
     handleCloseDatePicker()
   }
 
+  const handleToggleCompleted = () => {
+    callUpdateCardAPI({ completed: !activeCard?.completed })
+  }
+
   return (
     <Modal
       disableScrollLock
@@ -330,14 +335,70 @@ function ActiveCard() {
             inputFontSize='22px'
             value={activeCard?.title}
             onChangedValue={onUpdateCardTitle} />
+
+          {/* Completed Checkbox */}
+          <Box
+            onClick={handleToggleCompleted}
+            sx={{
+              ml: 'auto',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            <Box
+              sx={{
+                width: 28,
+                height: 28,
+                borderRadius: '50%',
+                border: activeCard?.completed ? '2px solid #000' : '2px solid #9e9e9e',
+                backgroundColor: activeCard?.completed ? '#fff' : 'transparent',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.2s',
+                '&:hover': {
+                  borderColor: activeCard?.completed ? '#000' : '#22c55e',
+                  backgroundColor: activeCard?.completed ? '#fff' : '#f0fdf4'
+                }
+              }}
+            >
+              {activeCard?.completed && (
+                <Check style={{ width: 18, height: 18, color: '#22c55e', strokeWidth: 3 }} />
+              )}
+            </Box>
+          </Box>
+
+          {activeCard?.completed && (
+            <Chip
+              label="Completed"
+              size="small"
+              sx={{
+                bgcolor: '#dcfce7',
+                color: '#166534',
+                fontWeight: 600,
+                fontSize: '13px'
+              }}
+            />
+          )}
         </Box>
 
         {/* Hiển thị dueDate nếu có */}
         {activeCard?.dueDate && (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, color: moment(activeCard.dueDate).isBefore(moment()) ? 'error.main' : '#576574' }}>
+          <Box sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            mb: 2,
+            color: activeCard?.completed
+              ? '#22c55e'
+              : (moment(activeCard.dueDate).isBefore(moment()) ? 'error.main' : '#576574')
+          }}>
             <WatchLaterOutlinedIcon fontSize="small" />
             <Typography sx={{ fontWeight: 600 }}>
               {moment(activeCard.dueDate).format('LLL')} ({moment(activeCard.dueDate).fromNow()})
+              {activeCard?.completed && ' - Completed'}
             </Typography>
           </Box>
         )}
@@ -366,7 +427,7 @@ function ActiveCard() {
             </Box>
 
             {/*  Attachments List */}
-            {activeCard?.attachments.length > 0 && (
+            {activeCard?.attachments?.length > 0 && (
               <Box sx={{ mb: 3 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <Paperclip className="w-5 h-5" />
@@ -374,7 +435,7 @@ function ActiveCard() {
                 </Box>
                 <div className="space-y-2 mb-3">
                   <AnimatePresence>
-                    {activeCard?.attachments.map((attachment) => {
+                    {activeCard?.attachments?.map((attachment) => {
                       const uploader = attachment.userName
                       const isPdf = attachment.type === 'pdf' || attachment.name?.toLowerCase().endsWith('.pdf')
                       return (
