@@ -14,6 +14,8 @@ import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/user/userSlice'
 import SidebarCreateBoardModal from '~/pages/Boards/create'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useRecentBoards } from '~/customHooks/useRecentBoards'
+import CircularProgress from '@mui/material/CircularProgress'
 
 const SidebarItem = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -49,6 +51,7 @@ const SidebarContent = ({
   const navigate = useNavigate()
   const location = useLocation()
   const currentUser = useSelector(selectCurrentUser)
+  const { recentBoards, loading: loadingRecent } = useRecentBoards()
 
   const plan = currentUser?.plan || 'free'
   const isPro = plan === 'pro'
@@ -73,6 +76,10 @@ const SidebarContent = ({
 
   const handleNavigateHome = () => {
     navigate('/')
+  }
+
+  const handleRecentBoardClick = (boardId) => {
+    navigate(`/boards/${boardId}`)
   }
 
   return (
@@ -249,38 +256,51 @@ const SidebarContent = ({
         >
           Recent Boards
         </Typography>
-        <Stack spacing={1} sx={{ mt: 1 }}>
-          {['Project Alpha', 'Marketing Campaign', 'Development Tasks'].map((board, index) => (
-            <Box
-              key={index}
-              sx={{
-                p: 2,
-                borderRadius: 2,
-                bgcolor: 'background.paper',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                '&:hover': {
-                  bgcolor: 'action.hover',
-                  transform: 'translateY(-1px)'
-                }
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Box
-                  sx={{
-                    width: 12,
-                    height: 12,
-                    borderRadius: 1,
-                    bgcolor: ['#ff6b6b', '#4ecdc4', '#45b7d1'][index]
-                  }}
-                />
-                <Typography variant="body2" fontWeight="medium">
-                  {board}
-                </Typography>
+        {loadingRecent ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+            <CircularProgress size={24} />
+          </Box>
+        ) : recentBoards.length === 0 ? (
+          <Box sx={{ px: 2, py: 2 }}>
+            <Typography variant="caption" color="text.secondary">
+              No recent boards yet
+            </Typography>
+          </Box>
+        ) : (
+          <Stack spacing={1} sx={{ mt: 1 }}>
+            {recentBoards.map((board, index) => (
+              <Box
+                key={board._id}
+                onClick={() => handleRecentBoardClick(board._id)}
+                sx={{
+                  p: 2,
+                  borderRadius: 2,
+                  bgcolor: 'background.paper',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    bgcolor: 'action.hover',
+                    transform: 'translateY(-1px)'
+                  }
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: 12,
+                      height: 12,
+                      borderRadius: 1,
+                      bgcolor: ['#ff6b6b', '#4ecdc4', '#45b7d1'][index] || '#4ecdc4'
+                    }}
+                  />
+                  <Typography variant="body2" fontWeight="medium" noWrap>
+                    {board.title}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-          ))}
-        </Stack>
+            ))}
+          </Stack>
+        )}
       </Box>
     </Box>
 

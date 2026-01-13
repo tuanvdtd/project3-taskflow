@@ -214,13 +214,8 @@ const getBoards = async (userId, page, itemsPerPage, querySearchBoard) => {
       ] }
     ]
     if (querySearchBoard) {
-      Object.keys(querySearchBoard).forEach((field) => {
-        // Cho phép tìm kiếm theo nhiều trường, sử dụng regex của mogodb, và kh phân biệt chữ hoa chữ thường
-        queryConditions.push({ [field]: { $regex: new RegExp(querySearchBoard[field], 'i') } })
-
-        // Phân biệt chữ hoa chữ thường
-        // queryConditions.push({ [field]: { $regex: querySearchBoard[field] } })
-      })
+      const searchKey = querySearchBoard['title'].trim()
+      queryConditions.push({ $text: { $search: searchKey } })
     }
 
     // Tạo pipeline cho queryBoards

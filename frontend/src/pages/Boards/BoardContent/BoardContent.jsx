@@ -19,6 +19,7 @@ import { cloneDeep, isEmpty } from 'lodash'
 import TaskFlowCard from './ListColumn/Column/ListCard/TaskFlowCard'
 import { generatePlaceholderCard } from '~/utils/formatter'
 import { useDragCursor } from '~/customHooks/useDragCursor'
+import { trackBoardAccessAPI } from '~/apis/recentBoardAPI'
 
 const ACTIVE_DRAG_ITEM_TYPE = {
   COLUMN: 'COLUMN',
@@ -62,6 +63,20 @@ function BoardContent({ board, moveColumnDnd, moveCardInSameColumnDnd, moveCardT
     const orderedColumns = board?.columns
     setOrderedColumnsState(orderedColumns)
   }, [board])
+
+  // Track board access when board is loaded
+  useEffect(() => {
+    if (board?._id) {
+      // Track với delay nhỏ để đảm bảo board đã load xong
+      const timer = setTimeout(() => {
+        trackBoardAccessAPI(board._id).catch(err => {
+          console.error('Failed to track board access:', err)
+        })
+      }, 500)
+
+      return () => clearTimeout(timer)
+    }
+  }, [board?._id])
 
   // Effect to filter cards based on keyword
   useEffect(() => {
