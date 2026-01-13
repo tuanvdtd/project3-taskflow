@@ -26,7 +26,12 @@ export const env = {
   CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
   // VNPAY
   VNPAY_TMN_CODE: process.env.VNPAY_TMN_CODE,
-  VNPAY_SECRET_KEY: process.env.VNPAY_SECRET_KEY
+  VNPAY_SECRET_KEY: process.env.VNPAY_SECRET_KEY,
+
+  // Redis
+  PASSWORD_REDIS: process.env.PASSWORD_REDIS,
+  HOST_REDIS: process.env.HOST_REDIS,
+  PORT_REDIS: process.env.PORT_REDIS
 }
 
 // Log để debug

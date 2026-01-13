@@ -7,7 +7,7 @@ let dbInstance = null
 const mongoClient = new MongoClient(env.MONGODB_URI, {
     serverApi: {
         version: ServerApiVersion.v1,
-        strict: true,
+        strict: false, // false để làm full text search
         deprecationErrors: true
     }
 })
@@ -21,6 +21,9 @@ export const DB_CONNECT = async () => {
         .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
       await dbInstance.collection('users')
         .createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 })
+      // tạo inddexx cho bảng board để tìm kiếm text
+      await dbInstance.collection('boards')
+        .createIndex({ title: 'text', description: 'text' })
     } catch (err) {
       throw new Error('Failed to create TTL index for userSessions.expiresAt')
     }

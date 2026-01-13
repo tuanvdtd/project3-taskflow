@@ -4,6 +4,7 @@ import express from 'express'
 import cors from 'cors'
 import { corsOptions } from './config/cors'
 import { DB_CONNECT, DB_CLOSE } from './config/mongodb'
+import { RedisDB } from './config/redis.init'
 import exitHook from 'async-exit-hook'
 import { env } from './config/environment'
 import { Router_V1 } from './routes/v1'
@@ -97,12 +98,17 @@ const START_SERVER = () => {
     console.log('Shutting down database...')
     DB_CLOSE()
     console.log('Database connection closed')
+    console.log('Closing Redis connection...')
+    RedisDB.closeRedis()
+    console.log('Redis connection closed')
   })
 }
 
 (async () => {
   try {
     await DB_CONNECT()
+    // Khởi tạo Redis
+    await RedisDB.initRedis()
     // Khởi động CRON job tự động hết hạn subscription
     startExpireSubscriptionJob()
     START_SERVER()

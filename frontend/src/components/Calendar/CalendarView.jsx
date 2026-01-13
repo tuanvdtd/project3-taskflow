@@ -65,7 +65,13 @@ function CalendarView() {
     const dueDate = task.dueDate ? new Date(task.dueDate) : null
 
     let backgroundColor = '#3b82f6'
-    if (dueDate && dueDate < now) {
+
+    // Nếu task đã completed, dùng màu xanh lá
+    if (task.completed) {
+      backgroundColor = '#22c55e'
+    }
+    // Nếu chưa completed và quá hạn, dùng màu đỏ
+    else if (dueDate && dueDate < now) {
       backgroundColor = '#ef4444'
     }
 

@@ -266,11 +266,11 @@ function TaskFlowCard({ card }) {
                 <Button className="flex -space-x-2">
                   {cardMembers.slice(0, 2).map(user => (
                     <img
-                      key={user._id}
-                      src={user.avatar}
-                      alt={user.username}
+                      key={user?._id}
+                      src={user?.avatar}
+                      alt={user?.username}
                       className="w-6 h-6 rounded-full border-2 border-white ring-1 ring-gray-300"
-                      title={user.username}
+                      title={user?.username}
                     />
                   ))}
                   {cardMembers.length > 2 && (

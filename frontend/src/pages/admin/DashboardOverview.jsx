@@ -107,7 +107,7 @@ function DashboardOverviewContent() {
             <LineChart data={userGrowth}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="month" stroke="#6b7280" />
-              <YAxis stroke="#6b7280" />
+              <YAxis stroke="#6b7280" allowDecimals={false} />
               <Tooltip />
               <Line
                 type="monotone"
@@ -151,8 +151,15 @@ function DashboardOverviewContent() {
             <BarChart data={revenue}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="month" stroke="#6b7280" />
-              <YAxis stroke="#6b7280" />
-              <Tooltip />
+              <YAxis
+                stroke="#6b7280" 
+                tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+              />
+              <Tooltip
+                formatter={(value) => `${value.toLocaleString('vi-VN')} ₫`}
+                labelStyle={{ color: '#374151' }}
+                contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+              />
               <Bar dataKey="revenue" fill="#10b981" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
