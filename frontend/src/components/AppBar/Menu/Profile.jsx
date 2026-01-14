@@ -123,7 +123,13 @@ export default function Profile() {
             aria-haspopup="true"
             aria-expanded={open ? 'true' : undefined}
           >
-            <Avatar sx={{ width: 34, height: 34 }} src={currUser?.avatar} />
+            <Avatar
+              sx={{ width: 34, height: 34 }}
+              src={currUser?.avatar}
+              alt={currUser?.displayName || currUser?.username}
+            >
+              {(currUser?.displayName || currUser?.username || 'U').charAt(0).toUpperCase()}
+            </Avatar>
           </IconButton>
         </Tooltip>
       </Box>
@@ -168,7 +174,13 @@ export default function Profile() {
           <MenuItem sx={{
             '&:hover': { color: 'primary.main', '& .avatar_profile': { color: 'primary.main' } }
           }} >
-            <Avatar src={currUser?.avatar} className="avatar_profile" /> Profile
+            <Avatar
+              src={currUser?.avatar}
+              className="avatar_profile"
+              alt={currUser?.displayName || currUser?.username}
+            >
+              {(currUser?.displayName || currUser?.username || 'U').charAt(0).toUpperCase()}
+            </Avatar> Profile
           </MenuItem>
         </Link>
         <Divider />

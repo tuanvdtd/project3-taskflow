@@ -210,6 +210,53 @@ const getTemplates = async () => {
   }
 }
 
+const removeUserFromBoard = async (boardId, userIdToRemove, requestUserId) => {
+  try {
+    // Kiểm tra board tồn tại
+    const board = await BoardModel.getBoardById(boardId)
+    if (!board) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'Board not found')
+    }
+
+    // Kiểm tra user yêu cầu có phải owner không
+    const isOwner = board.ownerIds.some(ownerId => 
+      ownerId.toString() === requestUserId.toString()
+    )
+    if (!isOwner) {
+      throw new ApiError(StatusCodes.FORBIDDEN, 'Only board owners can remove users')
+    }
+
+    // Không cho phép remove owner
+    const isRemovingOwner = board.ownerIds.some(ownerId => 
+      ownerId.toString() === userIdToRemove.toString()
+    )
+    if (isRemovingOwner) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Cannot remove board owner')
+    }
+
+    // Kiểm tra user có trong board không
+    const isMember = board.memberIds.some(memberId => 
+      memberId.toString() === userIdToRemove.toString()
+    )
+    if (!isMember) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'User is not a member of this board')
+    }
+
+    // 1. Remove user khỏi board
+    await BoardModel.removeUserFromBoard(boardId, userIdToRemove)
+
+    // 2. Remove user khỏi tất cả cards trong board
+    await cardModel.removeUserFromAllCardsInBoard(boardId, userIdToRemove)
+
+    return { 
+      success: true, 
+      message: 'User removed from board successfully' 
+    }
+  } catch (error) {
+    throw error
+  }
+}
+
 
 export const boardService = {
   createNew,
@@ -218,5 +265,6 @@ export const boardService = {
   moveCardToDiffColumn,
   getBoards,
   countBoardsByOwner,
-  getTemplates
+  getTemplates,
+  removeUserFromBoard
 }

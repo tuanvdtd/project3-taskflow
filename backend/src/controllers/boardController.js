@@ -71,6 +71,18 @@ const getTemplates = async (req, res, next) => {
   }
 }
 
+const removeUser = async (req, res, next) => {
+  try {
+    const requestUserId = req.jwtDecoded._id
+    const { boardId, userId } = req.params
+
+    const result = await boardService.removeUserFromBoard(boardId, userId, requestUserId)
+    res.status(StatusCodes.OK).json(result)
+  } catch (error) {
+    next(error)
+  }
+}
+
 
 export const boardController = {
   createNew,
@@ -78,5 +90,6 @@ export const boardController = {
   update,
   moveCardToDiffColumn,
   getBoards,
-  getTemplates
+  getTemplates,
+  removeUser
 }

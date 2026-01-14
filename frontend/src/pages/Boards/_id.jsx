@@ -190,6 +190,7 @@ function Board() {
             onFilterChange={setFilterKeyword}
             filterKeyword={filterKeyword}
             filteredCardsCount={filteredCardsCount}
+            onBoardUpdate={() => dispatch(fetchBoardDetailsAPI(boardId))}
           />
           {viewMode === 'board' && (
             <BoardContent
