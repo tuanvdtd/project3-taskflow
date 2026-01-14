@@ -29,7 +29,9 @@ function BoardUserGroup({ boardUsers = [], limit = 5 }) {
                 sx={{ width: 34, height: 34, cursor: 'pointer' }}
                 alt={user.displayName}
                 src={user.avatar}
-              />
+              >
+                {(user.displayName || user.username || 'U').charAt(0).toUpperCase()}
+              </Avatar>
             </Tooltip>
           )
         }
@@ -75,7 +77,9 @@ function BoardUserGroup({ boardUsers = [], limit = 5 }) {
                 sx={{ width: 34, height: 34, cursor: 'pointer' }}
                 alt={user.displayName}
                 src={user.avatar}
-              />
+              >
+                {(user.displayName || user.username || 'U').charAt(0).toUpperCase()}
+              </Avatar>
             </Tooltip>
           )}
         </Box>

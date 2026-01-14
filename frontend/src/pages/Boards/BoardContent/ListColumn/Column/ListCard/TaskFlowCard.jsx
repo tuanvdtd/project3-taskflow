@@ -49,9 +49,9 @@ function TaskFlowCard({ card }) {
   const activeBoard = useSelector(selectCurrentActiveBoard)
   const boardMembers = activeBoard.allUsers
 
-  const cardMembers = card?.memberIds?.map(memberId => {
+  const cardMembers = (card?.memberIds?.map(memberId => {
     return boardMembers.find(user => user._id === memberId)
-  })
+  }).filter(user => user !== undefined)) || []
 
   const handleToggleComplete = async (e) => {
     e.stopPropagation()

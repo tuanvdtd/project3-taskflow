@@ -48,13 +48,13 @@ const trackBoardAccess = async (userId, boardId) => {
     const score = Date.now() // Timestamp làm score - càng cao càng mới
     const member = `${boardId}:${board.title}` // Lưu cả boardId và title
 
-    console.log(`Tracking board access:
-      - User: ${userId}
-      - Board: ${boardId}
-      - Title: ${board.title}
-      - Score (timestamp): ${score}
-      - Date: ${new Date(score).toISOString()}
-    `)
+    // console.log(`Tracking board access:
+    //   - User: ${userId}
+    //   - Board: ${boardId}
+    //   - Title: ${board.title}
+    //   - Score (timestamp): ${score}
+    //   - Date: ${new Date(score).toISOString()}
+    // `)
 
     // Add/Update board vào sorted set với score = timestamp
     await redis.zAdd(key, { score, value: member })
@@ -66,7 +66,7 @@ const trackBoardAccess = async (userId, boardId) => {
     // Set expire cho key (refresh TTL)
     await redis.expire(key, EXPIRE_TIME)
 
-    console.log(`✅ Board tracked successfully with score: ${score}`)
+    // console.log(`Board tracked successfully with score: ${score}`)
 
     return {
       success: true,
@@ -102,7 +102,7 @@ const getRecentBoards = async (userId) => {
       return []
     }
 
-    console.log(`📊 Getting recent boards for user ${userId}:`, members)
+    // console.log(`Getting recent boards for user ${userId}:`, members)
 
     // Parse members để lấy boardId và title
     const recentBoards = members.map(member => {
@@ -142,7 +142,7 @@ const removeBoardFromRecents = async (userId, boardId) => {
 
     if (memberToRemove) {
       await redis.zRem(key, memberToRemove)
-      console.log(`Removed board ${boardId} from recent list`)
+      // console.log(`Removed board ${boardId} from recent list`)
     }
 
     return { success: true }
@@ -166,7 +166,7 @@ const clearRecentBoards = async (userId) => {
     const key = getRecentBoardsKey(userId)
     await redis.del(key)
 
-    console.log(`Cleared all recent boards for user ${userId}`)
+    // console.log(`Cleared all recent boards for user ${userId}`)
 
     return { success: true }
   } catch (error) {

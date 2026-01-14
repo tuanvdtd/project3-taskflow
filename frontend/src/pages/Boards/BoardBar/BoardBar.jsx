@@ -14,12 +14,14 @@ import InviteBoardUser from './InviteBoardUser'
 import BackgroundSelector from '~/components/BackgroundSelector'
 import ToggleFocusInput from '~/components/Form/ToggleFocusInput'
 import { updateBoardDetailsAPI } from '~/apis'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
+import { selectCurrentUser } from '~/redux/user/userSlice'
 import { cloneDeep } from 'lodash'
-import { LayoutDashboard, Calendar as CalendarIcon } from 'lucide-react'
+import { LayoutDashboard, Calendar as CalendarIcon, Users } from 'lucide-react'
 import { useState } from 'react'
 import FilterModal from './FilterModal'
+import BoardUserManagement from './BoardUserManagement'
 
 const MenuStyle = {
   color: 'white',
@@ -38,10 +40,17 @@ const MenuStyle = {
 }
 
 
-function BoardBar({ board, viewMode, onChangeViewMode, onFilterChange, filterKeyword, filteredCardsCount = 0 }) {
+function BoardBar({ board, viewMode, onChangeViewMode, onFilterChange, filterKeyword, filteredCardsCount = 0, onBoardUpdate }) {
   const [modalOpen, setModalOpen] = useState(false)
   const [filterModalOpen, setFilterModalOpen] = useState(false)
+  const [userManagementOpen, setUserManagementOpen] = useState(false)
   const dispatch = useDispatch()
+  const currentUser = useSelector(selectCurrentUser)
+
+  // Kiểm tra user hiện tại có phải owner không
+  const isOwner = board?.ownerIds?.some(
+    ownerId => ownerId.toString() === currentUser?._id?.toString()
+  )
 
   const handleClearFilter = () => {
     onFilterChange('')
@@ -236,21 +245,46 @@ function BoardBar({ board, viewMode, onChangeViewMode, onFilterChange, filterKey
           )}
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {/* <Button
-            variant="outlined"
-            startIcon={<PersonAddIcon />}
-            sx={{
-              color: "white",
-              borderColor: "white",
-              "&:hover": {
-                borderColor: "white",
-              },
-            }}
-          >
-            Invite
-          </Button> */}
           <InviteBoardUser boardId={board._id} />
           <BoardUserGroup boardUsers={board.allUsers} />
+
+          {/* Manage Users Button - Chỉ hiện cho owner */}
+          {isOwner && (
+            <Tooltip title="Manage board members">
+              <Box
+                onClick={() => setUserManagementOpen(true)}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1,
+                  px: 1.5,
+                  py: 0.8,
+                  borderRadius: 2,
+                  bgcolor: 'rgba(255, 255, 255, 0.15)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 255, 255, 0.25)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                  }
+                }}
+              >
+                <Users size={18} color="white" />
+                <Typography
+                  sx={{
+                    color: 'white',
+                    fontSize: '14px',
+                    fontWeight: 600
+                  }}
+                >
+                  Manage
+                </Typography>
+              </Box>
+            </Tooltip>
+          )}
 
         </Box>
       </Box>
@@ -261,6 +295,15 @@ function BoardBar({ board, viewMode, onChangeViewMode, onFilterChange, filterKey
         onClose={() => setFilterModalOpen(false)}
         onFilterChange={onFilterChange}
         initialKeyword={filterKeyword}
+      />
+
+      {/* User Management Modal */}
+      <BoardUserManagement
+        open={userManagementOpen}
+        onClose={() => setUserManagementOpen(false)}
+        board={board}
+        currentUserId={currentUser?._id}
+        onUserRemoved={onBoardUpdate}
       />
 
       {/* Clear Filter Overlay */}

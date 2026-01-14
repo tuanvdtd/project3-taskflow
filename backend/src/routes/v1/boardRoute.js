@@ -5,6 +5,7 @@ import { boardController } from '../../controllers/boardController'
 import { authMiddleware } from '~/middlewares/authMiddleware'
 import { multerUploadMiddleware } from '~/middlewares/multerUploadMiddleware'
 import { canCreateBoard } from '~/middlewares/boardLimitMiddleware'
+import { boardMiddleware } from '~/middlewares/boardMiddleware'
 
 const Router = express.Router()
 
@@ -23,5 +24,8 @@ Router.route('/:id')
 
 Router.route('/supports/move_card')
   .put(authMiddleware.isAuthorized, boardValidation.moveCardToDiffColumn, boardController.moveCardToDiffColumn)
+
+Router.route('/:boardId/users/:userId')
+  .delete(authMiddleware.isAuthorized, boardMiddleware.isBoardOwner, boardController.removeUser)
 
 export const boardRoute = Router

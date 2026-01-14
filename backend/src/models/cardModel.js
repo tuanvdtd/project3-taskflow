@@ -147,6 +147,21 @@ const pullCommentIds = async (comment) => {
   }
 }
 
+const removeUserFromAllCardsInBoard = async (boardId, userId) => {
+  try {
+    const result = await DB_GET().collection(CARD_COLLECTION_NAME).updateMany(
+      {
+        boardId: new ObjectId(boardId),
+        memberIds: new ObjectId(userId)
+      },
+      { $pull: { memberIds: new ObjectId(userId) } }
+    )
+    return result
+  } catch (error) {
+    throw new Error(error)
+  }
+}
+
 export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
@@ -156,5 +171,6 @@ export const cardModel = {
   deleteCardsByColumnId,
   pushCommentIds,
   pullCommentIds,
-  updateCardMembers
+  updateCardMembers,
+  removeUserFromAllCardsInBoard
 }
