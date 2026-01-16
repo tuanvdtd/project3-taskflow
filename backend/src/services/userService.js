@@ -526,7 +526,7 @@ const resetPassword = async (email, token, password) => {
 }
 
 // Lấy thông tin user hiện tại kèm plan & limits để FE sync
-const getMe = async (userId) => {
+const getMe = async (userId, device) => {
   try {
     const user = await userModel.findOneById(userId)
     if (!user) {
@@ -548,11 +548,21 @@ const getMe = async (userId) => {
 
     const currentBoardCount = await boardService.countBoardsByOwner(userId.toString())
 
+    // Lấy trạng thái 2FA từ session
+    let is2FAVerified = false
+    if (device) {
+      const userSession = await userSessionModel.getSessionByUserId(userId, device)
+      if (userSession) {
+        is2FAVerified = userSession.is_2fa_verified || false
+      }
+    }
+
     return {
       ...pickUser(user),
       plan,
       boardLimit: PLAN_LIMITS[plan]?.maxBoards ?? 10,
-      currentBoardCount
+      currentBoardCount,
+      is_2fa_verified: is2FAVerified
     }
   } catch (error) {
     throw error
