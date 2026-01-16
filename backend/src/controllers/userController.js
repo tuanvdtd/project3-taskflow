@@ -241,7 +241,8 @@ const resetPassword = async (req, res, next) => {
 const getMe = async (req, res, next) => {
   try {
     const userId = req.jwtDecoded._id
-    const result = await userService.getMe(userId)
+    const device = req.headers['user-agent'] || 'Unknown device'
+    const result = await userService.getMe(userId, device)
     res.status(StatusCodes.OK).json(result)
   }
   catch (error) {

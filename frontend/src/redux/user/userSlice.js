@@ -99,11 +99,12 @@ export const userSlice = createSlice({
       state.currentUser = null
     })
     builder.addCase(updateUserAPI.fulfilled, (state, action) => {
-      // action.payload là dữ liệu trả về từ API (response.data)
-      state.currentUser = action.payload
+      // Merge với currentUser để giữ lại các field không được trả về (như is_2fa_verified)
+      state.currentUser = { ...state.currentUser, ...action.payload }
     })
     builder.addCase(fetchCurrentUserAPI.fulfilled, (state, action) => {
       const user = action.payload
+      // fetchCurrentUser trả về đầy đủ thông tin, có thể replace toàn bộ
       state.currentUser = user
     })
   }
