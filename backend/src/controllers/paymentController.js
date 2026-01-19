@@ -12,6 +12,7 @@ import {
 } from 'vnpay'
 
 import { paymentService } from '~/services/paymentService'
+import { WEBSITE_DOMAIN } from '~/utils/constants'
 
 const vnpay = new VNPay({
   tmnCode: process.env.VNPAY_TMN_CODE,
@@ -74,7 +75,7 @@ export const createPaymentUrl = async (req, res) => {
       vnp_OrderInfo: `Thanh toan don hang-${order._id}`,
       vnp_OrderType: ProductCode.Other,
       vnp_ReturnUrl:
-        'http://localhost:5173/vnpay-return', // Frontend - Thay sau
+        `${WEBSITE_DOMAIN}/vnpay-return`, // Frontend - Thay sau
       vnp_Locale: 'vn',
       vnp_CreateDate: dateFormat(new Date()), // tùy chọn, mặc định là thời gian hiện tại
       vnp_ExpireDate: dateFormat(tomorrow) // tùy chọn
